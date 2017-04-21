@@ -1,113 +1,87 @@
-extern crate serde;
-#[macro_use]
-extern crate serde_derive;
-
-use std::env;
-use std::path::PathBuf;
-// use serde::*;
-// pub use ser::{to_string, Serializer};
-// pub use de::{from_str, Deserializer};
+use std::{env,fmt};
+use std::path::Path;
 
 const VERSION: &'static str = "0.0.1";
 
-#[derive(Serialize, Deserialize, Debug)]
-struct Plugin {
-    repo: String,
-    files: Vec<PathBuf>
+struct Plugin<'a> {
+    repo: &'a Path,
+    files: Vec<&'a Path>
 }
 
-impl Plugin {
-    pub fn new(prefix: &PathBuf, repo_name: &PathBuf) -> Plugin {
-        let name = repo_name.iter().last().unwrap();
-        let path = prefix.join("plugins").join(repo_name.clone());
-        let repo = String::from(repo_name.to_string_lossy());
+impl<'a> fmt::Display for Plugin<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let prefix = self.repo.display();
+        for file in self.files {
+            let basedir = file.parent().unwrap().display();
+            write!(f, r"source {}/{}", prefix, file.display())?;
+            write!(f, r"fpath+={}/{}/", prefix, basedir)?;
+            write!(f, r"PATH=={}/{}:$PATH", prefix, basedir)?;
+        }
+        write!(f, "autoload -Uz compinit; compinit -iCd $HOME/.zcompdump")
+    }
+}
+
+impl<'a> Plugin<'a> {
+    pub fn from_path(path: &'a Path) -> Plugin<'a> {
+        let name = path.iter().last().unwrap();
+        let mut files = path.read_dir().unwrap().filter_map(std::result::Result::ok).map(|file| file.path().as_path());
 
         // antigen style plugins
-        let antigen_plugin_file = path.join(name).join(".plugin.zsh");
-        if antigen_plugin_file.exists() {
+        if files.any(|file| *file == path.join(name).join(".plugin.zsh")) {
+            let _files = files.filter(|file| *file == path.join(name).join(".plugin.zsh")).collect();
             return Plugin {
-                repo: repo,
-                files: vec![antigen_plugin_file],
+                repo: path,
+                files: _files
             }
         }
 
         // prezto style plugins
-        let prezto_plugin_file = path.join("init.zsh");
-        if prezto_plugin_file.exists() {
+        if files.any(|file| *file == *path.join("init.zsh")) {
+            let _files = files.filter(|file| *file == path.join("init.zsh")).collect();
             return match std::process::Command::new("pmodload").arg(name.clone()).spawn() {
                 Ok(_) =>
                     Plugin {
-                        repo: repo,
-                        files: vec![],
+                        repo: path,
+                        files: vec![]
                     },
                 Err(_) =>
                     Plugin {
-                        repo: repo,
-                        files: vec![prezto_plugin_file],
+                        repo: path,
+                        files: _files
                     }
             }
         }
 
-        let mut filenames = path.read_dir().unwrap()
-            .filter_map(std::result::Result::ok)
-            .map(|entry| PathBuf::from(entry.file_name().to_string_lossy().into_owned()));
-
         // zsh plugins
-        if filenames.any(|filename| filename.ends_with(".zsh")) {
-            let zsh_files = filenames.filter(|filename| filename.ends_with(".zsh"));
+        if files.any(|file| file.ends_with(".zsh")) {
             return Plugin {
-                repo: repo,
-                files: zsh_files.collect(),
+                repo: path,
+                files: files.filter(|file| file.ends_with(".zsh")).collect(),
             }
         }
 
         // sh plugins
-        if filenames.any(|filename| filename.ends_with(".sh")) {
-            let sh_files = filenames.filter(|filename| filename.ends_with(".zsh"));
+        if files.any(|file| file.ends_with(".sh")) {
             return Plugin {
-                repo: repo,
-                files: sh_files.collect(),
+                repo: path,
+                files: files.filter(|file| file.ends_with(".sh")).collect(),
             }
         }
 
-        Plugin { repo: repo, files: vec![] }
+        Plugin { repo: path, files: vec![] }
     }
 }
 
-// Plugin {
-//   repo: "frmendes/prompt-geometry",
-//   files: [ "geometry.zsh" ],
-// }
-//
-// source /Users/jedahan/.zr/plugins/frmendes/prompt-geometry/geometry.zsh
-// fpath+=/Users/jedahan/.zr/plugins/frmendes/prompt-geometry/
-// PATH=/Users/jedahan/.zr/plugins/frmendes/prompt-geometry:$PATH
-
-// impl ser::to_string<Zsh> for Plugin {
-//    pub fn to_string<Zsh>(&self) -> str {
-//        let f = io::Writer;
-//        for file in self.files {
-//            write!(f, "# {repo_name}
-//                source {prefix}{file}
-//                fpath+={prefix}{fpath}/
-//                PATH={prefix}{fpath}:$PATH",
-//                repo_name = self.repo,
-//                prefix = format!("{}/{}", ZR_HOME, self.repo),
-//                fpath = file.strip("/*$"),
-//                ).unwrap();
-//        }
-//    }
-// }
-
 fn main() {
-    let zr_home = PathBuf::from(option_env!("ZR_HOME").unwrap_or(format!("{}/.zr", env!("HOME")).as_str()));
+    let default_home = format!("{}/.zr", env!("HOME"));
+    let zr_home = Path::new(option_env!("ZR_HOME").unwrap_or(default_home.as_str()));
 
     match env::args().nth(1) {
         Some(command) => {
             match command.as_ref() {
                 "version" => version(),
-                "debug" => debug(zr_home),
-                "load" => load(zr_home),
+                "debug" => debug(&zr_home),
+                "load" => load(&zr_home, &Path::new(&env::args().nth(2).unwrap())),
                 _ => help(),
             }
         },
@@ -115,31 +89,34 @@ fn main() {
     };
 }
 
-fn debug(zr_home: PathBuf) {
-    println!("env:");
-    println!("  ZR_HOME: {}", zr_home.to_string_lossy());
+fn debug(zr_home: &Path) {
+    version();
+    println!("  ZR_HOME: {}", zr_home.display());
 }
 
 fn help() {
-    println!("zr {}", VERSION);
-    println!();
-    println!("usage:");
-    println!("  zr [<plugin>|command]");
-    println!();
-    println!("  zr plugin - save 'plugin' to ~/.zr-init.zsh")
-    println!();
-    println!("commands:");
-    println!("  zr help - print this help");
-    println!("  zr version - print the version");
+    println!(r"zr {}
+
+usage:
+  zr [<plugin>|command]
+
+
+commands:
+  zr load <plugin> - save 'plugin' to ~/.zr-init.zsh
+  zr help - print this help
+  zr version - print the version
+  zr debug - print environment vars",
+      VERSION);
 }
 
 fn version() {
     println!("{}", VERSION);
 }
 
-fn load(zr_home: PathBuf) {
-    let repo_name = PathBuf::from(env::args().nth(2).unwrap());
-    println!("loading {:?}", repo_name);
-    let plugin = Plugin::new(&zr_home, &repo_name);
-    println!("loaded {:?}", plugin);
+fn load(zr_home: &Path, name: &Path) {
+    println!("loading {:?}", name.display());
+    let plugin_path = format!("{}/{}", zr_home.display(), name.display());
+    let plugin = Plugin::from_path(Path::new(&plugin_path));
+    println!("loaded {:?}", name.display());
+    println!("{}", plugin);
 }
