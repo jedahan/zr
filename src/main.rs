@@ -14,11 +14,11 @@ impl fmt::Display for Plugin {
         let prefix = self.repo.display();
         for file in &self.files {
             let basedir = file.parent().unwrap().display();
-            write!(f, r"source {}/{}", prefix, file.display())?;
-            write!(f, r"fpath+={}/{}/", prefix, basedir)?;
-            write!(f, r"PATH=={}/{}:$PATH", prefix, basedir)?;
+            writeln!(f, r"source {}/{}", prefix, file.display())?;
+            writeln!(f, r"fpath+={}/{}/", prefix, basedir)?;
+            writeln!(f, r"PATH=={}/{}:$PATH", prefix, basedir)?;
         }
-        write!(f, "autoload -Uz compinit; compinit -iCd $HOME/.zcompdump")
+        writeln!(f, "autoload -Uz compinit; compinit -iCd $HOME/.zcompdump")
     }
 }
 
@@ -117,11 +117,7 @@ fn version() {
 }
 
 fn load(zr_home: PathBuf, name: PathBuf) {
-    println!("loading {:?}", name.display());
     let plugin_path = format!("{}/plugins/{}", zr_home.display(), name.display());
-    println!("from path {:?}", plugin_path);
     let plugin = Plugin::from_path(PathBuf::from(&plugin_path));
-    println!("loaded {:?}", name.display());
     println!("{}", plugin);
-    println!("{:?}", plugin);
 }
