@@ -11,12 +11,11 @@ struct Plugin {
 
 impl fmt::Display for Plugin {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let prefix = self.repo.display();
         for file in &self.files {
             let basedir = file.parent().unwrap().display();
-            writeln!(f, r"source {}/{}", prefix, file.display())?;
-            writeln!(f, r"fpath+={}/{}/", prefix, basedir)?;
-            writeln!(f, r"PATH=={}/{}:$PATH", prefix, basedir)?;
+            writeln!(f, r"source {}", file.display())?;
+            writeln!(f, r"fpath+={}/", basedir)?;
+            writeln!(f, r"PATH={}:$PATH", basedir)?;
         }
         writeln!(f, "autoload -Uz compinit; compinit -iCd $HOME/.zcompdump")
     }
