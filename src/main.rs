@@ -27,17 +27,15 @@ impl Plugin {
         let name = path_clone.iter().last().unwrap();
         let files: Vec<_> = path.read_dir().unwrap().filter_map(std::result::Result::ok).map(|file| file.path()).filter(|file| file.is_file()).collect();
 
-        let antigen_plugin_file = files.iter().find(|file| file.file_name().unwrap() == path.join(name).join(".plugin.zsh"));
-        if antigen_plugin_file.is_some() {
+        if let Some(antigen_plugin_file) = files.iter().find(|file| file.file_name().unwrap() == path.join(name).join(".plugin.zsh")) {
             return Plugin {
                 repo: path,
-                files: vec![antigen_plugin_file.unwrap().to_owned()]
+                files: vec![antigen_plugin_file.to_owned()]
             }
         }
 
         // prezto: if we find init.zsh, try to load with pmodload, or manually
-        let prezto_plugin_file = files.iter().find(|file| file.file_name().unwrap() == path.join("init.zsh"));
-        if prezto_plugin_file.is_some() {
+        if let Some(prezto_plugin_file) = files.iter().find(|file| file.file_name().unwrap() == path.join("init.zsh")) {
             return match std::process::Command::new("pmodload").arg(name.clone()).spawn() {
                 Ok(_) =>
                     Plugin {
@@ -47,7 +45,7 @@ impl Plugin {
                 Err(_) =>
                     Plugin {
                         repo: path,
-                        files: vec![prezto_plugin_file.unwrap().to_owned()]
+                        files: vec![prezto_plugin_file.to_owned()]
                     }
             }
         }
