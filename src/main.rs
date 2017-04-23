@@ -25,7 +25,7 @@ impl Plugin {
     pub fn from_path(path: PathBuf) -> Plugin {
         let path_clone = path.clone();
         let name = path_clone.iter().last().unwrap();
-        let files: Vec<_> = path.read_dir().unwrap().filter_map(std::result::Result::ok).map(|file| file.path()).filter(|file| file.is_file()).collect();
+        let files: Vec<_> = path.read_dir().unwrap().filter_map(std::result::Result::ok).map(|file| file.path()).filter(|file| file.is_file() && file.extension().is_some()).collect();
 
         if let Some(antigen_plugin_file) = files.iter().find(|file| file.file_name().unwrap() == path.join(name).join(".plugin.zsh")) {
             return Plugin {
