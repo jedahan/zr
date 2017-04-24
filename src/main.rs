@@ -123,11 +123,9 @@ fn version() {
 }
 
 fn reset(zr_home: PathBuf) {
-    let result = fs::remove_file(zr_home.join("init.zsh"));
-    if result.is_err() {
-        let err = result.err().unwrap();
-        if err.kind() != ErrorKind::NotFound {
-            Err(err).unwrap()
+    if let Err(error) = fs::remove_file(zr_home.join("init.zsh")) {
+        if error.kind() != ErrorKind::NotFound {
+            Err(error).unwrap()
         }
     }
 }
