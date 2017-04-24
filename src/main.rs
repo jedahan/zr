@@ -6,7 +6,6 @@ use std::collections::HashSet;
 
 const VERSION: &'static str = "0.0.1";
 
-#[derive(Debug)]
 struct Plugin {
     name: String,
     files: Vec<PathBuf>
@@ -29,12 +28,27 @@ impl fmt::Display for Plugin {
 }
 
 impl Plugin {
+    /**
+     * Load accepts a few kind of formats:
+     *
+     *     load some/repo/single.file.zsh
+     */
     pub fn from_path(path: PathBuf) -> Plugin {
         let name = String::from(path.iter().last().unwrap().to_string_lossy());
-        let name_clone = &name.clone();
-        let files: Vec<_> = path.read_dir().unwrap().filter_map(std::result::Result::ok).map(|file| file.path()).filter(|file| file.is_file() && file.extension().is_some()).collect();
 
-        if let Some(antigen_plugin_file) = files.iter().find(|file| file.file_name().unwrap() == path.join(name_clone).join(".plugin.zsh")) {
+        if path.is_file() {
+            return Plugin {
+                name: name,
+                files: vec![path]
+            }
+        }
+
+        let files: Vec<_> = path.read_dir().unwrap().filter_map(std::result::Result::ok)
+            .map(|file| file.path())
+            .filter(|file| file.is_file() && file.extension().is_some())
+            .collect();
+
+        if let Some(antigen_plugin_file) = files.iter().find(|file| file.file_name().unwrap().to_string_lossy() == format!("{}.plugin.zsh", &name)) {
             return Plugin {
                 name: name,
                 files: vec![antigen_plugin_file.to_owned()]
@@ -86,10 +100,11 @@ fn main() {
     match env::args().nth(1) {
         Some(command) => {
             match command.as_ref() {
-                "version" => version(),
-                "debug" => debug(zr_home),
                 "load" => load(zr_home, PathBuf::from(env::args().nth(2).unwrap())),
                 "reset" => reset(zr_home),
+                "version" => version(),
+                "help" => help(),
+                "debug" => debug(zr_home),
                 _ => help(),
             }
         },
