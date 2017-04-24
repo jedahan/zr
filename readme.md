@@ -1,6 +1,19 @@
-# zr - zsh plugin manager
+# z :rat:
 
-    zr plugin - save 'plugin' to ~/.zr-init.zsh
-    zr debug - print zr_home environment variable
-    zr help - print help
-    zr version - print version
+    zr 0.1.0
+    Jonathan Dahan <hi@jonathan.is>
+    zsh plugin manager
+
+    USAGE:
+        zr [SUBCOMMAND]
+
+    FLAGS:
+        -h, --help       Prints help information
+        -V, --version    Prints version information
+
+    SUBCOMMANDS:
+        debug      print debug info
+        help       Prints this message or the help of the given subcommand(s)
+        load       load plugin
+        reset      delete init.zsh
+        version    print version

@@ -1,10 +1,11 @@
-use std::{env,fmt};
+use std::fmt;
 use std::path::PathBuf;
 use std::fs::{self, File};
 use std::io::{BufRead, BufReader, ErrorKind, Write, LineWriter};
 use std::collections::HashSet;
 
-const VERSION: &'static str = "0.0.1";
+#[macro_use]
+extern crate clap;
 
 struct Plugin {
     name: String,
@@ -97,44 +98,29 @@ fn main() {
     let default_home = format!("{}/.zr", env!("HOME"));
     let zr_home = PathBuf::from(option_env!("ZR_HOME").unwrap_or(default_home.as_str()));
 
-    match env::args().nth(1) {
-        Some(command) => {
-            match command.as_ref() {
-                "load" => load(zr_home, PathBuf::from(env::args().nth(2).unwrap())),
-                "reset" => reset(zr_home),
-                "version" => version(),
-                "help" => help(),
-                "debug" => debug(zr_home),
-                _ => help(),
-            }
-        },
-        None => help()
-    };
+    let mut zr = clap_app!(zr =>
+        (version: crate_version!())
+        (author: "Jonathan Dahan <hi@jonathan.is>")
+        (about: "zsh plugin manager")
+        (@subcommand version => (about: "print version") )
+        (@subcommand reset => (about: "delete init.zsh") )
+        (@subcommand debug => (about: "print debug info") )
+        (@subcommand load =>
+            (about: "load plugin")
+            (@arg plugin: +required "file or folder to load")
+        )
+    );
+
+    match zr.clone().get_matches().subcommand() {
+        ("load", Some(load_matches)) => load(zr_home, PathBuf::from(load_matches.value_of("plugin").unwrap())),
+        ("reset", _) => reset(zr_home),
+        ("debug", _) => debug(zr_home),
+        (_, _) => zr.print_help().unwrap()
+    }
 }
 
 fn debug(zr_home: PathBuf) {
-    version();
     println!("  ZR_HOME: {}", zr_home.display());
-}
-
-fn help() {
-    println!(r"zr {}
-
-usage:
-  zr [<plugin>|command]
-
-
-commands:
-  zr load <plugin> - save 'plugin' to ZR_HOME/init.zsh
-  zr help - print this help
-  zr reset - remove ZR_HOME/init.zsh
-  zr version - print the version
-  zr debug - print environment vars",
-      VERSION);
-}
-
-fn version() {
-    println!("{}", VERSION);
 }
 
 fn reset(zr_home: PathBuf) {
