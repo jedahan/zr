@@ -4,5 +4,3 @@ version = "0.1.0"
 authors = ["Jonathan Dahan <hi@jonathan.is>"]
 
 [dependencies]
-serde = "1.*.*"
-serde_derive = "1.*.*"
