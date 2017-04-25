@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use std::fs::{self, File};
 use std::io::{BufRead, BufReader, ErrorKind, Write, LineWriter};
 use std::collections::HashSet;
+use std::fs::OpenOptions;
 
 #[macro_use]
 extern crate clap;
@@ -135,28 +136,25 @@ fn load(zr_home: PathBuf, name: PathBuf) {
     let plugin_path = PathBuf::from(format!("{}/plugins/{}", zr_home.display(), name.display()));
     let plugin = Plugin::from_path(PathBuf::from(&plugin_path));
 
-    let init_file_path = PathBuf::from(format!("{}/init.zsh", zr_home.display()));
-    if ! init_file_path.exists() {
-        File::create(&init_file_path).unwrap();
-    }
-    let init_file = File::open(&init_file_path).unwrap();
-    let buf_reader = BufReader::new(init_file);
-    let all_lines = buf_reader.lines().map(|line| line.unwrap());
+    let init_filename = format!("{}/init.zsh", zr_home.display());
+    let init_file = OpenOptions::new().read(true).write(true).create(true).open(&init_filename).unwrap();
+    let init_lines = BufReader::new(&init_file).lines().map(|line| line.unwrap());
 
-    let new_init_file_path = PathBuf::from(format!("{}/init.zsh.new", zr_home.display()));
-    let new_init_file = File::create(&new_init_file_path).unwrap();
-    let mut new_init_file = LineWriter::new(new_init_file);
+    let temp_filename = format!("{}.tmp", init_filename);
+    let temp_file = OpenOptions::new().create_new(true).open(&temp_filename).unwrap();
+    let mut temp_writer = LineWriter::new(temp_file);
+
     let plugin_buf = format!("{}", plugin);
     let plugin_lines = plugin_buf.lines().map(|line| line.to_string());
 
     let autoload_line = "autoload -Uz compinit; compinit -iCd $HOME/.zcompdump";
 
-    for line in all_lines.chain(plugin_lines).filter(|line| line != autoload_line) {
-       new_init_file.write(line.as_bytes()).unwrap();
-       new_init_file.write(b"\n").unwrap();
+    for line in init_lines.chain(plugin_lines).filter(|line| line != autoload_line) {
+       temp_writer.write(line.as_bytes()).unwrap();
+       temp_writer.write(b"\n").unwrap();
     }
 
-    new_init_file.write(autoload_line.as_bytes()).unwrap();
+    temp_writer.write(autoload_line.as_bytes()).unwrap();
 
-    fs::rename(&new_init_file_path, &init_file_path).unwrap();
+    fs::rename(&temp_filename, &init_filename).unwrap();
 }
