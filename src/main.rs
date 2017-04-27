@@ -19,11 +19,11 @@ impl fmt::Display for Plugin {
         writeln!(f, "# {}", self.name)?;
         for file in &self.files {
             basedirs.insert(file.parent().unwrap());
-            writeln!(f, r"source {}", file.display())?;
+            writeln!(f, "source {}", file.display())?;
         }
         for basedir in basedirs {
-            writeln!(f, r"fpath+={}/", basedir.display())?;
-            writeln!(f, r"PATH={}:$PATH", basedir.display())?;
+            writeln!(f, "fpath+={}/", basedir.display())?;
+            writeln!(f, "PATH={}:$PATH", basedir.display())?;
         }
         Ok(())
     }
