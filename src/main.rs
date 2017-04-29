@@ -14,7 +14,7 @@ extern crate clap;
 
 struct Plugin {
     name: String,
-    files: Vec<PathBuf>
+    files: HashSet<PathBuf>
 }
 
 impl fmt::Display for Plugin {
@@ -34,68 +34,45 @@ impl fmt::Display for Plugin {
 }
 
 impl Plugin {
-    /**
-     * Load accepts a few kind of formats:
-     *
-     *     load some/repo/single.file.zsh
-     */
-    pub fn from_path(path: PathBuf) -> Plugin {
-        let name = String::from(path.iter().last().unwrap().to_string_lossy());
-
-        if path.is_file() {
-            return Plugin {
-                name: name,
-                files: vec![path]
-            }
+    pub fn new_from_files(name: &str, files: Vec<PathBuf>) -> Plugin {
+        Plugin {
+            name: name.to_owned(),
+            files: files.iter().cloned().collect(),
         }
+    }
 
-        let files: Vec<_> = path.read_dir().unwrap().filter_map(std::result::Result::ok)
+    pub fn new(name: &str) -> Plugin {
+        let path = Path::new(&name);
+
+        let files: Vec<_> = path.read_dir().unwrap()
+            .filter_map(std::result::Result::ok)
             .map(|file| file.path())
             .filter(|file| file.is_file() && file.extension().is_some())
             .collect();
 
+        // antigen style
         if let Some(antigen_plugin_file) = files.iter().find(|file| file.file_name().unwrap().to_string_lossy() == format!("{}.plugin.zsh", &name)) {
-            return Plugin {
-                name: name,
-                files: vec![antigen_plugin_file.to_owned()]
-            }
+            return Self::new_from_files(name, vec![antigen_plugin_file.to_owned()]);
         }
 
-        // prezto: if we find init.zsh, try to load with pmodload, or manually
+        // prezto style
         if let Some(prezto_plugin_file) = files.iter().find(|file| file.file_name().unwrap() == path.join("init.zsh")) {
-            return match std::process::Command::new("pmodload").arg(name.clone()).spawn() {
-                Ok(_) =>
-                    Plugin {
-                        name: name,
-                        files: vec![]
-                    },
-                Err(_) =>
-                    Plugin {
-                        name: name,
-                        files: vec![prezto_plugin_file.to_owned()]
-                    }
-            }
+            return Self::new_from_files(name, vec![prezto_plugin_file.to_owned()]);
         }
 
         // zsh plugins
-        let zsh_plugin_files: Vec<_> = files.iter().filter(|file| file.extension().unwrap() == "zsh").map(|e| e.to_owned()).collect();
+        let zsh_plugin_files: Vec<_> = files.iter().cloned().filter(|file| file.extension().unwrap() == "zsh").collect();
         if ! zsh_plugin_files.is_empty() {
-            return Plugin {
-                name: name,
-                files: zsh_plugin_files
-            }
+            return Self::new_from_files(name, zsh_plugin_files);
         }
 
         // sh plugins
-        let sh_plugin_files: Vec<_> = files.iter().filter(|file| file.extension().unwrap() == "sh").map(|e| e.to_owned()).collect();
+        let sh_plugin_files: Vec<_> = files.iter().cloned().filter(|file| file.extension().unwrap() == "sh").collect();
         if ! sh_plugin_files.is_empty() {
-            return Plugin {
-                name: name,
-                files: sh_plugin_files.to_vec()
-            }
+            return Self::new_from_files(name, sh_plugin_files);
         }
 
-        Plugin { name: name, files: vec![] }
+        Self::new_from_files(name, vec![])
     }
 }
 
@@ -107,17 +84,21 @@ fn main() {
         (version: crate_version!())
         (author: "Jonathan Dahan <hi@jonathan.is>")
         (about: "zsh plugin manager")
-        (@subcommand version => (about: "print version") )
         (@subcommand reset => (about: "delete init.zsh") )
-        (@subcommand debug => (about: "print debug info") )
+        (@subcommand debug => (about: "print debug information") )
         (@subcommand load =>
             (about: "load plugin")
-            (@arg plugin: +required "file or folder to load")
+            (@arg plugin: +required "plugin/name")
+            (@arg file: "optional/path/to/file.zsh")
         )
     );
 
     match zr.clone().get_matches().subcommand() {
-        ("load", Some(load_matches)) => load(&zr_home, &PathBuf::from(load_matches.value_of("plugin").unwrap())),
+        ("load", Some(load_matches)) => {
+            let plugin = load_matches.value_of("plugin").unwrap();
+            let file = load_matches.value_of("file").unwrap();
+            load(&zr_home, &plugin, &file)
+        },
         ("list", _) => list(&zr_home),
         ("reset", _) => reset(&zr_home),
         ("debug", _) => debug(&zr_home),
@@ -142,40 +123,40 @@ fn list(zr_home: &PathBuf) {
     println!("{:?}", plugins);
 }
 
-fn plugins(zr_home: &PathBuf) -> Vec<Plugin> {
-    let init_filename = format!("{}/init.zsh", zr_home.display());
-    let init_file = OpenOptions::new().read(true).open(&init_filename).unwrap();
+fn get_plugins_from(zr_home: &PathBuf, filepath: &Path) -> Vec<Plugin> {
+    let init_file = OpenOptions::new().read(true).open(&filepath).unwrap();
+
     BufReader::new(&init_file)
         .lines()
         .map(|line| line.unwrap())
-        .filter(|line| line[0] == "#")
-        .map(|plugin_line| Plugin::new(plugin_line.trim()).to_owned())
-        .collect()
+        .filter(|line| line.starts_with("#"))
+        .map(|line| line.split_whitespace().last().unwrap())
+        .map(|plugin_name| Plugin::new(plugin_name))
+        .collect::<Vec<Plugin>>()
 }
 
-fn load(zr_home: &PathBuf, name: &PathBuf) {
-    let plugin_path = PathBuf::from(format!("{}/plugins/{}", zr_home.display(), name.display()));
-    let plugin = Plugin::from_path(PathBuf::from(&plugin_path));
-
+fn load(zr_home: PathBuf, name: &str, file: &str) {
     let init_filename = format!("{}/init.zsh", zr_home.display());
-    let init_file = OpenOptions::new().read(true).write(true).create(true).open(&init_filename).unwrap();
-    let init_lines = BufReader::new(&init_file).lines().map(|line| line.unwrap());
+    let mut plugins = get_plugins_from(zr_home, Path::new(&init_filename));
 
-    let temp_filename = format!("{}.tmp", init_filename);
-    let temp_file = OpenOptions::new().create_new(true).open(&temp_filename).unwrap();
-    let mut temp_writer = LineWriter::new(temp_file);
-
-    let plugin_buf = format!("{}", plugin);
-    let plugin_lines = plugin_buf.lines().map(|line| line.to_string());
-
-    let autoload_line = "autoload -Uz compinit; compinit -iCd $HOME/.zcompdump";
-
-    for line in init_lines.chain(plugin_lines).filter(|line| line != autoload_line) {
-       temp_writer.write_all(line.as_bytes()).unwrap();
-       temp_writer.write_all(b"\n").unwrap();
+    if file != "" {
+        let filepath = PathBuf::from(file);
+        if let Some(plugin) = plugins.iter().find(|plugin| plugin.name == name) {
+            plugin.files.insert(filepath);
+        } else {
+            plugins.push(Plugin::new_from_files(&name, vec![filepath]));
+        }
+    } else {
+        plugins.push(Plugin::new(&name))
     }
 
-    temp_writer.write_all(autoload_line.as_bytes()).unwrap();
+    let temp_filename = format!("{}/init.zsh", std::env::temp_dir().display());
+    let mut temp_file = OpenOptions::new().create_new(true).open(&temp_filename).unwrap();
+
+    for plugin in plugins {
+        writeln!(temp_file, "{}", plugin);
+    }
+    writeln!(temp_file, "autoload -Uz compinit; compinit -iCd $HOME/.zcompdump");
 
     fs::rename(&temp_filename, &init_filename).unwrap();
 }
