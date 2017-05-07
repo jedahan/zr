@@ -3,9 +3,9 @@
 #![cfg_attr(feature="clippy", plugin(clippy))]
 
 use std::fmt;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::fs;
-use std::io::{BufRead, BufReader, ErrorKind, Write, LineWriter};
+use std::io::{BufRead, BufReader, ErrorKind, Write};
 use std::collections::HashSet;
 use std::fs::OpenOptions;
 
@@ -41,8 +41,10 @@ impl Plugin {
         }
     }
 
-    pub fn new(name: &str) -> Plugin {
-        let path = Path::new(&name);
+    pub fn new(init_home: &Path, name: &str) -> Plugin {
+        let path = init_home.parent().unwrap().join("plugins").join(&name);
+        let pathname = PathBuf::from(name);
+        let shortname = pathname.file_name().unwrap().to_string_lossy();
 
         let files: Vec<_> = path.read_dir().unwrap()
             .filter_map(std::result::Result::ok)
@@ -51,7 +53,7 @@ impl Plugin {
             .collect();
 
         // antigen style
-        if let Some(antigen_plugin_file) = files.iter().find(|file| file.file_name().unwrap().to_string_lossy() == format!("{}.plugin.zsh", &name)) {
+        if let Some(antigen_plugin_file) = files.iter().find(|file| file.file_name().unwrap().to_string_lossy() == format!("{}.plugin.zsh", &shortname)) {
             return Self::new_from_files(name, vec![antigen_plugin_file.to_owned()]);
         }
 
@@ -77,86 +79,102 @@ impl Plugin {
 }
 
 fn main() {
-    let default_home = format!("{}/.zr", env!("HOME"));
-    let zr_home = PathBuf::from(option_env!("ZR_HOME").unwrap_or_else(|| default_home.as_str()));
+    let default_zr_home = format!("{}/.zr", env!("HOME"));
+    let zr_init = Path::new(option_env!("ZR_HOME").unwrap_or_else(|| &default_zr_home)).join("init.zsh");
 
     let mut zr = clap_app!(zr =>
         (version: crate_version!())
         (author: "Jonathan Dahan <hi@jonathan.is>")
         (about: "zsh plugin manager")
-        (@subcommand reset => (about: "delete init.zsh") )
+        (@subcommand reset => (about: "delete init file") )
         (@subcommand debug => (about: "print debug information") )
-        (@subcommand load =>
-            (about: "load plugin")
+        (@subcommand list => (about: "list plugins") )
+        (@subcommand add =>
+            (about: "add plugin to init file")
             (@arg plugin: +required "plugin/name")
             (@arg file: "optional/path/to/file.zsh")
         )
     );
 
     match zr.clone().get_matches().subcommand() {
-        ("load", Some(load_matches)) => {
-            let plugin = load_matches.value_of("plugin").unwrap();
-            let file = load_matches.value_of("file").unwrap();
-            load(&zr_home, &plugin, &file)
+        ("add", Some(matches)) => {
+            let plugin = matches.value_of("plugin").expect("add should have a plugin specified");
+            if matches.is_present("file") {
+                add(&zr_init, plugin, matches.value_of("file").unwrap())
+            } else {
+                add(&zr_init, plugin, "")
+            }
         },
-        ("list", _) => list(&zr_home),
-        ("reset", _) => reset(&zr_home),
-        ("debug", _) => debug(&zr_home),
-        (_, _) => zr.print_help().unwrap()
-    }
+        ("list", _) => list(&zr_init),
+        ("reset", _) => reset(&zr_init),
+        (_, _) => zr.print_help().unwrap(),
+    };
 }
 
-fn debug(zr_home: &PathBuf) {
-    println!("  ZR_HOME: {}", zr_home.display());
-}
-
-fn reset(zr_home: &PathBuf) {
-    if let Err(error) = fs::remove_file(zr_home.join("init.zsh")) {
+fn reset(zr_init: &Path) {
+    if let Err(error) = fs::remove_file(zr_init) {
         if error.kind() != ErrorKind::NotFound {
             Err(error).unwrap()
         }
     }
 }
 
-fn list(zr_home: &PathBuf) {
-    let plugins: Vec<String> = plugins(zr_home).iter().map(|plugin| plugin.name).collect();
-    println!("{:?}", plugins);
+fn list(zr_init: &Path) {
+    for plugin in plugins(zr_init) {
+        println!("{}", plugin.name);
+    }
 }
 
-fn get_plugins_from(zr_home: &PathBuf, filepath: &Path) -> Vec<Plugin> {
-    let init_file = OpenOptions::new().read(true).open(&filepath).unwrap();
+fn plugins(zr_init: &Path) -> Vec<Plugin> {
+    if ! zr_init.exists() {
+        return vec![];
+    }
+
+    let init_file = OpenOptions::new().read(true).open(&zr_init).unwrap();
 
     BufReader::new(&init_file)
         .lines()
         .map(|line| line.unwrap())
-        .filter(|line| line.starts_with("#"))
-        .map(|line| line.split_whitespace().last().unwrap())
-        .map(|plugin_name| Plugin::new(plugin_name))
+        .filter(|line| line.starts_with('#'))
+        .map(|line| line.split_whitespace().last().unwrap().to_owned())
+        .map(|plugin_name| Plugin::new(zr_init, &plugin_name))
         .collect::<Vec<Plugin>>()
 }
 
-fn load(zr_home: PathBuf, name: &str, file: &str) {
-    let init_filename = format!("{}/init.zsh", zr_home.display());
-    let mut plugins = get_plugins_from(zr_home, Path::new(&init_filename));
+fn add(zr_init: &Path, name: &str, file: &str) {
+    let plugins = load(zr_init, name, file);
+    save(zr_init, plugins);
+}
 
-    if file != "" {
-        let filepath = PathBuf::from(file);
-        if let Some(plugin) = plugins.iter().find(|plugin| plugin.name == name) {
-            plugin.files.insert(filepath);
+fn load(zr_init: &Path, name: &str, file: &str) -> Vec<Plugin> {
+    let mut plugins = plugins(zr_init);
+
+    let plugin_exists = plugins.iter().any(|plugin| plugin.name == name);
+    let has_filename = file != "";
+
+    if has_filename {
+        if plugin_exists {
+            plugins.iter_mut().find(|plugin| plugin.name == name).unwrap().files.insert(PathBuf::from(&file));
         } else {
-            plugins.push(Plugin::new_from_files(&name, vec![filepath]));
+            plugins.push(Plugin::new_from_files(name, vec![PathBuf::from(&file)]));
         }
-    } else {
-        plugins.push(Plugin::new(&name))
+    } else if !plugin_exists {
+        plugins.push(Plugin::new(zr_init, name));
     }
 
-    let temp_filename = format!("{}/init.zsh", std::env::temp_dir().display());
-    let mut temp_file = OpenOptions::new().create_new(true).open(&temp_filename).unwrap();
+    plugins
+}
+
+fn save(zr_init: &Path, plugins: Vec<Plugin>) {
+    let temp_filename = format!("{}init.zsh", std::env::temp_dir().display());
+    let mut temp_file = OpenOptions::new().write(true).create_new(true).open(&temp_filename).unwrap();
 
     for plugin in plugins {
-        writeln!(temp_file, "{}", plugin);
+        writeln!(temp_file, "{}", plugin)
+            .expect("Should be able to write plugins");
     }
-    writeln!(temp_file, "autoload -Uz compinit; compinit -iCd $HOME/.zcompdump");
+    writeln!(temp_file, "autoload -Uz compinit; compinit -iCd $HOME/.zcompdump")
+        .expect("Should be able to write the autoload line");
 
-    fs::rename(&temp_filename, &init_filename).unwrap();
+    fs::rename(&temp_filename, &zr_init).unwrap();
 }
