@@ -17,3 +17,7 @@
         load       load plugin
         reset      delete init.zsh
         version    print version
+
+# developing
+
+    cargo +nightly build --features="clippy"

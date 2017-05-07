@@ -1,6 +1,10 @@
+#![cfg_attr(feature="clippy", feature(plugin))]
+
+#![cfg_attr(feature="clippy", plugin(clippy))]
+
 use std::fmt;
 use std::path::PathBuf;
-use std::fs::{self, File};
+use std::fs;
 use std::io::{BufRead, BufReader, ErrorKind, Write, LineWriter};
 use std::collections::HashSet;
 use std::fs::OpenOptions;
@@ -97,7 +101,7 @@ impl Plugin {
 
 fn main() {
     let default_home = format!("{}/.zr", env!("HOME"));
-    let zr_home = PathBuf::from(option_env!("ZR_HOME").unwrap_or(default_home.as_str()));
+    let zr_home = PathBuf::from(option_env!("ZR_HOME").unwrap_or_else(|| default_home.as_str()));
 
     let mut zr = clap_app!(zr =>
         (version: crate_version!())
@@ -113,18 +117,19 @@ fn main() {
     );
 
     match zr.clone().get_matches().subcommand() {
-        ("load", Some(load_matches)) => load(zr_home, PathBuf::from(load_matches.value_of("plugin").unwrap())),
-        ("reset", _) => reset(zr_home),
-        ("debug", _) => debug(zr_home),
+        ("load", Some(load_matches)) => load(&zr_home, &PathBuf::from(load_matches.value_of("plugin").unwrap())),
+        ("list", _) => list(&zr_home),
+        ("reset", _) => reset(&zr_home),
+        ("debug", _) => debug(&zr_home),
         (_, _) => zr.print_help().unwrap()
     }
 }
 
-fn debug(zr_home: PathBuf) {
+fn debug(zr_home: &PathBuf) {
     println!("  ZR_HOME: {}", zr_home.display());
 }
 
-fn reset(zr_home: PathBuf) {
+fn reset(zr_home: &PathBuf) {
     if let Err(error) = fs::remove_file(zr_home.join("init.zsh")) {
         if error.kind() != ErrorKind::NotFound {
             Err(error).unwrap()
@@ -132,7 +137,23 @@ fn reset(zr_home: PathBuf) {
     }
 }
 
-fn load(zr_home: PathBuf, name: PathBuf) {
+fn list(zr_home: &PathBuf) {
+    let plugins: Vec<String> = plugins(zr_home).iter().map(|plugin| plugin.name).collect();
+    println!("{:?}", plugins);
+}
+
+fn plugins(zr_home: &PathBuf) -> Vec<Plugin> {
+    let init_filename = format!("{}/init.zsh", zr_home.display());
+    let init_file = OpenOptions::new().read(true).open(&init_filename).unwrap();
+    BufReader::new(&init_file)
+        .lines()
+        .map(|line| line.unwrap())
+        .filter(|line| line[0] == "#")
+        .map(|plugin_line| Plugin::new(plugin_line.trim()).to_owned())
+        .collect()
+}
+
+fn load(zr_home: &PathBuf, name: &PathBuf) {
     let plugin_path = PathBuf::from(format!("{}/plugins/{}", zr_home.display(), name.display()));
     let plugin = Plugin::from_path(PathBuf::from(&plugin_path));
 
@@ -150,11 +171,11 @@ fn load(zr_home: PathBuf, name: PathBuf) {
     let autoload_line = "autoload -Uz compinit; compinit -iCd $HOME/.zcompdump";
 
     for line in init_lines.chain(plugin_lines).filter(|line| line != autoload_line) {
-       temp_writer.write(line.as_bytes()).unwrap();
-       temp_writer.write(b"\n").unwrap();
+       temp_writer.write_all(line.as_bytes()).unwrap();
+       temp_writer.write_all(b"\n").unwrap();
     }
 
-    temp_writer.write(autoload_line.as_bytes()).unwrap();
+    temp_writer.write_all(autoload_line.as_bytes()).unwrap();
 
     fs::rename(&temp_filename, &init_filename).unwrap();
 }

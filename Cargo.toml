@@ -5,3 +5,7 @@ authors = ["Jonathan Dahan <hi@jonathan.is>"]
 
 [dependencies]
 clap = "2"
+clippy = {version = "*", optional = true}
+
+[features]
+default = []
