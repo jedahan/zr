@@ -2,19 +2,54 @@
 
 #![cfg_attr(feature="clippy", plugin(clippy))]
 
-use std::fmt;
-use std::path::{Path, PathBuf};
-use std::fs;
-use std::io::{BufRead, BufReader, ErrorKind, Write};
-use std::collections::HashSet;
-use std::fs::OpenOptions;
-
 #[macro_use]
 extern crate clap;
+extern crate git2;
+extern crate libc;
 
+/// The prelude module makes it easy to split this file into multiple files
+mod prelude {
+    pub use std::fmt;
+    pub use std::path::{Path, PathBuf};
+    pub use std::fs;
+    pub use std::io::{BufRead, BufReader, ErrorKind, Write};
+    pub use std::collections::HashSet;
+    pub use std::fs::OpenOptions;
+    pub use std::ffi::{OsStr,OsString};
+    pub use git2::Repository;
+}
+
+use prelude::*;
+
+/// eprintln! will be in stable soon
+macro_rules! eprintln {
+    ($($arg:tt)*) => {{
+        extern crate std;
+        use std::io::prelude::*;
+        if let Err(result) = writeln!(&mut std::io::stderr(), $($arg)*) {
+            panic!(result);
+        }
+    }}
+}
+
+/// A plugin is just a simple name (like "geometry"), and a list of files to load
 struct Plugin {
     name: String,
     files: HashSet<PathBuf>
+}
+
+enum Error {
+    EnvironmentVariableNotUnicode { key: String, value: OsString }
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use Error::*;
+        match *self {
+            EnvironmentVariableNotUnicode {ref key, ref value} =>
+                write!(f, "The value in the environment variable '{}' is not utf-8: {}", key, value.to_string_lossy()),
+        }
+    }
 }
 
 impl fmt::Display for Plugin {
@@ -34,17 +69,28 @@ impl fmt::Display for Plugin {
 }
 
 impl Plugin {
-    pub fn new_from_files(name: &str, files: Vec<PathBuf>) -> Plugin {
+
+    pub fn from_name(zr_init: &Path, name: &str) -> Plugin {
+        let path = zr_init.parent().unwrap().join("plugins").join(&name);
+        if ! path.exists() {
+            let url = format!("https://github.com/{}", name);
+            let _ = match Repository::clone(&url, &path) {
+                Ok(repo) => repo,
+                Err(e) => panic!("failed to clone: {}", e),
+            };
+        }
+        Plugin::from_path(&path)
+    }
+
+    pub fn from_files(name: &Path, files: Vec<PathBuf>) -> Plugin {
         Plugin {
-            name: name.to_owned(),
+            name: name.to_str().unwrap().to_string(),
             files: files.iter().cloned().collect(),
         }
     }
 
-    pub fn new(init_home: &Path, name: &str) -> Plugin {
-        let path = init_home.parent().unwrap().join("plugins").join(&name);
-        let pathname = PathBuf::from(name);
-        let shortname = pathname.file_name().unwrap().to_string_lossy();
+    pub fn from_path(path: &Path) -> Plugin {
+        let name = path.parent().unwrap();
 
         let files: Vec<_> = path.read_dir().unwrap()
             .filter_map(std::result::Result::ok)
@@ -53,34 +99,63 @@ impl Plugin {
             .collect();
 
         // antigen style
-        if let Some(antigen_plugin_file) = files.iter().find(|file| file.file_name().unwrap().to_string_lossy() == format!("{}.plugin.zsh", &shortname)) {
-            return Self::new_from_files(name, vec![antigen_plugin_file.to_owned()]);
+        if let Some(antigen_plugin_file) = files.iter().find(|&file| *file == path.join(name).with_extension("plugin.zsh")) {
+            return Plugin::from_files(name, vec![antigen_plugin_file.to_owned()]);
         }
 
         // prezto style
-        if let Some(prezto_plugin_file) = files.iter().find(|file| file.file_name().unwrap() == path.join("init.zsh")) {
-            return Self::new_from_files(name, vec![prezto_plugin_file.to_owned()]);
+        if let Some(prezto_plugin_file) = files.iter().find(|&file| *file == path.join("init.zsh")) {
+            return Plugin::from_files(name, vec![prezto_plugin_file.to_owned()]);
         }
 
         // zsh plugins
-        let zsh_plugin_files: Vec<_> = files.iter().cloned().filter(|file| file.extension().unwrap() == "zsh").collect();
+        let zsh_plugin_files: Vec<_> = files.iter().cloned().filter(|ref file| file.extension() == Some(OsStr::new("zsh"))).collect();
         if ! zsh_plugin_files.is_empty() {
-            return Self::new_from_files(name, zsh_plugin_files);
+            return Plugin::from_files(name, zsh_plugin_files);
         }
 
         // sh plugins
         let sh_plugin_files: Vec<_> = files.iter().cloned().filter(|file| file.extension().unwrap() == "sh").collect();
         if ! sh_plugin_files.is_empty() {
-            return Self::new_from_files(name, sh_plugin_files);
+            return Plugin::from_files(name, sh_plugin_files);
         }
 
-        Self::new_from_files(name, vec![])
+        Plugin::from_files(name, vec![])
     }
 }
 
 fn main() {
-    let default_zr_home = format!("{}/.zr", env!("HOME"));
-    let zr_init = Path::new(option_env!("ZR_HOME").unwrap_or_else(|| &default_zr_home)).join("init.zsh");
+    if let Err(err) = run() {
+        eprintln!("{}", err);
+        std::process::exit(libc::EXIT_FAILURE);
+    }
+}
+
+fn get_var(key: &str) -> Result<Option<String>, Error> {
+    use std::env::VarError::*;
+
+    match std::env::var(key) {
+        Ok(value) => Ok(Some(value)),
+        Err(NotPresent) => Ok(None),
+        Err(NotUnicode(value)) => Err(Error::EnvironmentVariableNotUnicode { key: key.to_string(), value: value} ),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    pub fn test_not_utf8_environment_variables_error_out() {
+        let bad_byte = b"\x192";
+        std::env::set_var("ZR_HOME", bad_byte);
+    }
+}
+
+fn run() -> Result<(), Error> {
+    let zr_home = get_var("ZR_HOME")?;
+
+    let home = get_var("HOME")?;
+    let default_home = format!("{}/.zr", home.unwrap());
+
+    let zr_init = PathBuf::from(zr_home.unwrap_or(default_home)).join("init.zsh");
 
     let mut zr = clap_app!(zr =>
         (version: crate_version!())
@@ -108,7 +183,9 @@ fn main() {
         ("list", _) => list(&zr_init),
         ("reset", _) => reset(&zr_init),
         (_, _) => zr.print_help().unwrap(),
-    };
+    }
+
+    Ok(())
 }
 
 fn reset(zr_init: &Path) {
@@ -137,7 +214,7 @@ fn plugins(zr_init: &Path) -> Vec<Plugin> {
         .map(|line| line.unwrap())
         .filter(|line| line.starts_with('#'))
         .map(|line| line.split_whitespace().last().unwrap().to_owned())
-        .map(|plugin_name| Plugin::new(zr_init, &plugin_name))
+        .map(|plugin_name| Plugin::from_name(zr_init, &plugin_name))
         .collect::<Vec<Plugin>>()
 }
 
@@ -156,10 +233,10 @@ fn load(zr_init: &Path, name: &str, file: &str) -> Vec<Plugin> {
         if plugin_exists {
             plugins.iter_mut().find(|plugin| plugin.name == name).unwrap().files.insert(PathBuf::from(&file));
         } else {
-            plugins.push(Plugin::new_from_files(name, vec![PathBuf::from(&file)]));
+            plugins.push(Plugin::from_files(Path::new(name), vec![PathBuf::from(&file)]));
         }
     } else if !plugin_exists {
-        plugins.push(Plugin::new(zr_init, name));
+        plugins.push(Plugin::from_name(zr_init, name));
     }
 
     plugins
