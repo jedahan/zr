@@ -69,20 +69,9 @@ impl Plugins {
     }
 
     pub fn new(zr_home: PathBuf) -> Plugins {
-        let zr_init = &zr_home.join("init.zsh");
         Plugins {
             home: zr_home.clone(),
-            plugins: if ! zr_init.exists() { vec![] } else {
-                let init_file = OpenOptions::new().read(true).open(&zr_init).unwrap();
-
-                BufReader::new(&init_file)
-                    .lines()
-                    .map(|line| line.unwrap())
-                    .filter(|line| line.starts_with('#'))
-                    .map(|line| line.split_whitespace().last().unwrap().to_owned())
-                    .map(|plugin_name| Plugin::from_plugin_name(&zr_home, &plugin_name).ok().unwrap())
-                    .collect::<Vec<Plugin>>()
-            }
+            plugins: vec![]
         }
     }
 
@@ -158,6 +147,16 @@ impl fmt::Display for Error {
     }
 }
 
+impl fmt::Display for Plugins {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, "{}", self.home.display())?;
+        for plugin in &self.plugins {
+            writeln!(f, "{}", plugin)?;
+        }
+        Ok(())
+    }
+}
+
 impl fmt::Display for Plugin {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut basedirs = HashSet::new();
@@ -189,15 +188,15 @@ fn split(plugin_name: &str) -> Result<(String, String), Error> {
 }
 
 impl Plugin {
-    pub fn from_plugin_name(zr_home: &Path, plugin_name: &str) -> Result<Plugin, Error> {
-        let (author, name) = split(plugin_name)?;
-        Plugin::new(&zr_home, &author, &name)
-    }
-
     pub fn new(zr_home: &Path, author: &str, name: &str) -> Result<Plugin, Error> {
         let path = zr_home.join("plugins").join(&author).join(&name);
+
         if ! path.is_dir() {
-            fs::create_dir(path.parent().unwrap()).map_err(Error::Io)?;
+            let parent = path.parent().unwrap();
+            if ! parent.exists() {
+                fs::create_dir(parent).map_err(Error::Io)?;
+            }
+
             let url = format!("https://github.com/{}/{}", author, name);
             let _ = match Repository::clone(&url, &path) {
                 Ok(repo) => repo,
@@ -261,12 +260,36 @@ fn get_var(key: &str) -> Result<Option<String>, Error> {
     }
 }
 
+fn load_plugins_from(zr_home: PathBuf) -> Plugins {
+    let mut plugins = Plugins::new(zr_home.clone());
+    let zr_init = &zr_home.join("init.zsh");
+    let plugin_home = &zr_home.join("plugins");
+
+    if zr_init.exists() {
+        let init_file = OpenOptions::new().read(true).open(&zr_init).unwrap();
+        for filepath in BufReader::new(&init_file)
+            .lines()
+            .map(|line| line.unwrap())
+            .filter(|line| line.starts_with("source"))
+            .map(|line| PathBuf::from(line.split_whitespace().last().unwrap()))
+            .map(|filepath| filepath.strip_prefix(&plugin_home).ok().unwrap().to_owned() )
+            .collect::<Vec<_>>() {
+                let filename = filepath.to_str().to_owned().unwrap();
+                let name = filename.split('/').collect::<Vec<_>>()[0..2].join("/");
+                let file = filename.split('/').collect::<Vec<_>>()[2..].join("/");
+                let _ = plugins.add(&name, Some(&file));
+            }
+    }
+
+    plugins
+}
+
 fn run() -> Result<(), Error> {
     let zr_home = get_var("ZR_HOME")?;
     let home = get_var("HOME")?;
     let default_home = format!("{}/.zr", home.unwrap());
 
-    let mut plugins = Plugins::new(PathBuf::from(zr_home.unwrap_or(default_home)));
+    let mut plugins = load_plugins_from(PathBuf::from(zr_home.unwrap_or(default_home)));
 
     let mut zr = clap_app!(zr =>
         (version: crate_version!())
