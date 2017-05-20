@@ -1,8 +1,8 @@
 # z :rat:
 
-    zr 0.1.0
+    zr 0.4.0
     Jonathan Dahan <hi@jonathan.is>
-    zsh plugin manager
+    z:rat: - zsh plugin manager
 
     USAGE:
         zr [SUBCOMMAND]
@@ -12,11 +12,25 @@
         -V, --version    Prints version information
 
     SUBCOMMANDS:
-        debug      print debug info
-        help       Prints this message or the help of the given subcommand(s)
-        load       load plugin
-        reset      delete init.zsh
-        version    print version
+        add       add plugin to init file
+        debug     print debug information
+        help      Prints this message or the help of the given subcommand(s)
+        list      list plugins
+        reset     delete init file
+        update    update plugins
+
+
+# usage
+
+Add this to your *~/.zshrc*:
+
+    test -f $HOME/.zr/init.zsh && source $_ || {
+      zr add frmendes/geometry
+      zr add jedahan/geometry-hydrate
+      exec zsh
+    }
+
+When you want to add or remove plugins, just run `zr reset`
 
 # developing
 
