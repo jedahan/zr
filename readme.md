@@ -1,6 +1,6 @@
 # z :rat:
 
-    zr 0.4.0
+    zr 0.4.1
     Jonathan Dahan <hi@jonathan.is>
     z:rat: - zsh plugin manager
 
@@ -30,6 +30,8 @@ Add this to your *~/.zshrc*:
     }
 
 When you want to add or remove plugins, just run `zr reset`
+
+If you'd like a different directory for `~/.zr`, just set `ZR_HOME`
 
 # developing
 

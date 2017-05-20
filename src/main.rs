@@ -188,9 +188,7 @@ fn split(plugin_name: &str) -> Result<(String, String), Error> {
 }
 
 impl Plugin {
-    pub fn new(zr_home: &Path, author: &str, name: &str) -> Result<Plugin, Error> {
-        let path = zr_home.join("plugins").join(&author).join(&name);
-
+    fn clone_if_empty(path: &Path, author: &str, name: &str) -> Result<(), Error> {
         if ! path.is_dir() {
             let parent = path.parent().unwrap();
             if ! parent.exists() {
@@ -198,11 +196,15 @@ impl Plugin {
             }
 
             let url = format!("https://github.com/{}/{}", author, name);
-            let _ = match Repository::clone(&url, &path) {
-                Ok(repo) => repo,
-                Err(e) => panic!("failed to clone: {}", e),
-            };
+            Repository::clone(&url, &path).unwrap();
         }
+        Ok(())
+    }
+
+    pub fn new(zr_home: &Path, author: &str, name: &str) -> Result<Plugin, Error> {
+        let path = zr_home.join("plugins").join(&author).join(&name);
+
+        Plugin::clone_if_empty(&path, &author, &name)?;
 
         let files: Vec<PathBuf> = path.read_dir().unwrap()
             .filter_map(std::result::Result::ok)
@@ -232,6 +234,8 @@ impl Plugin {
 
     pub fn from_files(zr_home: &Path, author: &str, name: &str, files: Vec<PathBuf>) -> Plugin {
         let path = zr_home.join("plugins").join(&author).join(&name);
+        let _ = Plugin::clone_if_empty(&path, &author, &name);
+
         let mapped = files.iter().cloned().map(|file| path.join(&file)).collect();
 
         Plugin {
