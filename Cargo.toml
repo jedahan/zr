@@ -1,12 +1,12 @@
 [package]
 name = "zr"
-version = "0.3.0"
+version = "0.4.0"
 authors = ["Jonathan Dahan <hi@jonathan.is>"]
 
 [dependencies]
-clap = "2"
-git2 = "0.6.4"
-libc = "0.2.22"
+clap = "~2"
+git2 = "~0.6.5"
+libc = "~0.2.22"
 clippy = {version = "*", optional = true}
 
 [features]
