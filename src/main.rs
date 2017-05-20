@@ -39,7 +39,7 @@ impl Plugins {
              if error.kind() == ErrorKind::NotFound {
                  Ok(())
              } else {
-                 Err(Error::IoError(error))
+                 Err(Error::Io(error))
              })
     }
 
@@ -60,8 +60,7 @@ impl Plugins {
                         opts.remote_callbacks(cb);
                         let mut remote = repo.find_remote(first_remote).unwrap();
                         let refspec = "refs/heads/*:refs/heads/*";
-                        remote.fetch(&[refspec], Some(&mut opts), None)
-                            .map_err(|error| Error::GitError(error))?;
+                        remote.fetch(&[refspec], Some(&mut opts), None).map_err(Error::Git)?;
                     }
                 }
             }
@@ -136,9 +135,9 @@ struct Plugin {
 enum Error {
     EnvironmentVariableNotUnicode { key: String, value: OsString },
     InvalidPluginName { plugin_name: String },
-    ClapError(clap::Error),
-    IoError(std::io::Error),
-    GitError(git2::Error),
+    Clap(clap::Error),
+    Io(std::io::Error),
+    Git(git2::Error),
 }
 
 impl fmt::Display for Error {
@@ -149,11 +148,11 @@ impl fmt::Display for Error {
                 write!(f, "The value in the environment variable '{}' is not utf-8: {}", key, value.to_string_lossy()),
             InvalidPluginName {ref plugin_name} =>
                 write!(f, "The plugin name must be formatted 'author/name', found '{}'", plugin_name),
-            ClapError(ref error) =>
+            Clap(ref error) =>
                 write!(f, "Clap error: {}", error.to_string()),
-            IoError(ref error) =>
+            Io(ref error) =>
                 write!(f, "Io error: {}", error.to_string()),
-            GitError(ref error) =>
+            Git(ref error) =>
                 write!(f, "Git error: {}", error.to_string()),
         }
     }
@@ -198,7 +197,7 @@ impl Plugin {
     pub fn new(zr_home: &Path, author: &str, name: &str) -> Result<Plugin, Error> {
         let path = zr_home.join("plugins").join(&author).join(&name);
         if ! path.is_dir() {
-            fs::create_dir(path.parent().unwrap()).map_err(|error| Error::IoError(error))?;
+            fs::create_dir(path.parent().unwrap()).map_err(Error::Io)?;
             let url = format!("https://github.com/{}/{}", author, name);
             let _ = match Repository::clone(&url, &path) {
                 Ok(repo) => repo,
@@ -289,7 +288,7 @@ fn run() -> Result<(), Error> {
         ("list", _) => plugins.list(),
         ("reset", _) => plugins.reset(),
         ("update", _) => plugins.update(),
-        (_, _) => zr.print_help().map_err(Error::ClapError),
+        (_, _) => zr.print_help().map_err(Error::Clap),
     }
 }
 
