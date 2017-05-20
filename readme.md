@@ -23,11 +23,14 @@
 
 Add this to your *~/.zshrc*:
 
-    test -f $HOME/.zr/init.zsh && source $_ || {
-      zr add frmendes/geometry
-      zr add jedahan/geometry-hydrate
-      exec zsh
-    }
+```zsh
+test -f $HOME/.zr/init.zsh && source $_ || {
+  zr add frmendes/geometry
+  zr add jedahan/geometry-hydrate
+  zr add junegunn/fzf shell/key-bindings.zsh  # just load key-bindings.zsh
+  exec zsh
+}
+```
 
 When you want to add or remove plugins, just run `zr reset`
 
