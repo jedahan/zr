@@ -13,7 +13,6 @@
 
     SUBCOMMANDS:
         add       add plugin to init file
-        debug     print debug information
         help      Prints this message or the help of the given subcommand(s)
         list      list plugins
         reset     delete init file

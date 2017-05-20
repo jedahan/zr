@@ -296,7 +296,6 @@ fn run() -> Result<(), Error> {
         (author: "Jonathan Dahan <hi@jonathan.is>")
         (about: "z:rat: - zsh plugin manager")
         (@subcommand reset => (about: "delete init file") )
-        (@subcommand debug => (about: "print debug information") )
         (@subcommand list => (about: "list plugins") )
         (@subcommand update => (about: "update plugins") )
         (@subcommand add =>
