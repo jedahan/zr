@@ -80,18 +80,18 @@ impl Plugins {
     }
 
     pub fn add(&mut self, plugin_name: &str, file: Option<&str>) -> Result<(), Error> {
-        let (author, name) = split(&plugin_name)?;
+        let (author, name) = split(plugin_name)?;
         if let Some(filepath) = file {
-            if self.plugins.iter().find(|ref plugin| (&plugin.name, &plugin.author) == (&name, &author)).is_none() {
+            if self.plugins.iter().find(|plugin| (&plugin.name, &plugin.author) == (&name, &author)).is_none() {
                 let files = vec![PathBuf::from(&filepath)];
                 let plugin = Plugin::from_files(&self.home, &author, &name, files);
                 self.plugins.push(plugin);
-            } else if let Some(plugin) = self.plugins.iter_mut().find(|ref plugin| (&plugin.name, &plugin.author) == (&name, &author)) {
+            } else if let Some(plugin) = self.plugins.iter_mut().find(|plugin| (&plugin.name, &plugin.author) == (&name, &author)) {
                 let file = self.home.join("plugins").join(&author).join(&name).join(&filepath);
                 plugin.files.insert(file);
             }
         } else {
-            if self.plugins.iter().all(|ref plugin| (&plugin.name, &plugin.author) != (&name, &author)) {
+            if self.plugins.iter().all(|plugin| (&plugin.name, &plugin.author) != (&name, &author)) {
                 let plugin = Plugin::new(&self.home, &author, &name)?;
                 self.plugins.push(plugin);
             }
@@ -201,7 +201,7 @@ impl Plugin {
     pub fn new(zr_home: &Path, author: &str, name: &str) -> Result<Plugin, Error> {
         let path = zr_home.join("plugins").join(&author).join(&name);
 
-        Plugin::clone_if_empty(&path, &author, &name)?;
+        Plugin::clone_if_empty(&path, author, name)?;
 
         let files: Vec<PathBuf> = path.read_dir().unwrap()
             .filter_map(std::result::Result::ok)
@@ -215,13 +215,12 @@ impl Plugin {
             } else if let Some(prezto_plugin_file) = files.iter().find(|&file| *file == path.join("init.zsh")) {
                 vec![prezto_plugin_file.to_owned()]
             } else {
-                let zsh_plugin_files: Vec<_> = files.iter().cloned().filter(|ref file| file.extension() == Some(OsStr::new("zsh"))).collect();
-                let shell_files = if zsh_plugin_files.is_empty() {
+                let zsh_plugin_files: Vec<_> = files.iter().cloned().filter(|file| file.extension() == Some(OsStr::new("zsh"))).collect();
+                if zsh_plugin_files.is_empty() {
                     files.iter().cloned().filter(|file| file.extension().unwrap() == "sh").collect()
                 } else {
                     zsh_plugin_files
-                };
-                shell_files
+                }
             }
 
         };
@@ -231,7 +230,7 @@ impl Plugin {
 
     pub fn from_files(zr_home: &Path, author: &str, name: &str, files: Vec<PathBuf>) -> Plugin {
         let path = zr_home.join("plugins").join(&author).join(&name);
-        let _ = Plugin::clone_if_empty(&path, &author, &name);
+        let _ = Plugin::clone_if_empty(&path, author, name);
 
         let mapped = files.iter().cloned().map(|file| path.join(&file)).collect();
 
@@ -254,7 +253,7 @@ fn get_var(key: &str) -> Result<Option<String>, Error> {
     }
 }
 
-fn load_plugins_from(zr_home: PathBuf) -> Plugins {
+fn load_plugins_from(zr_home: &PathBuf) -> Plugins {
     let mut plugins = Plugins::new(zr_home.clone());
     let zr_init = &zr_home.join("init.zsh");
     let plugin_home = &zr_home.join("plugins");
@@ -282,8 +281,9 @@ fn run() -> Result<(), Error> {
     let zr_home = get_var("ZR_HOME")?;
     let home = get_var("HOME")?;
     let default_home = format!("{}/.zr", home.unwrap());
+    let path = PathBuf::from(zr_home.unwrap_or(default_home));
 
-    let mut plugins = load_plugins_from(PathBuf::from(zr_home.unwrap_or(default_home)));
+    let mut plugins = load_plugins_from(&path);
 
     let mut zr = clap_app!(zr =>
         (version: crate_version!())
