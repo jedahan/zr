@@ -16,15 +16,12 @@ use std::ffi::{OsStr,OsString};
 use git2::Repository;
 use std::iter::FromIterator;
 
-/// eprintln! will be in stable soon
-macro_rules! eprintln {
-    ($($arg:tt)*) => {{
-        extern crate std;
-        use std::io::prelude::*;
-        if let Err(result) = writeln!(&mut std::io::stderr(), $($arg)*) {
-            panic!(result);
-        }
-    }}
+fn main() {
+    if let Err(err) = run() {
+        writeln!(&mut std::io::stderr(), "{}", err)
+            .expect("error writing to stderr");
+        std::process::exit(libc::EXIT_FAILURE);
+    }
 }
 
 struct Plugins {
@@ -247,13 +244,6 @@ impl Plugin {
 
 }
 
-fn main() {
-    if let Err(err) = run() {
-        eprintln!("{}", err);
-        std::process::exit(libc::EXIT_FAILURE);
-    }
-}
-
 fn get_var(key: &str) -> Result<Option<String>, Error> {
     use std::env::VarError::*;
 
@@ -317,18 +307,3 @@ fn run() -> Result<(), Error> {
         (_, _) => zr.print_help().map_err(Error::Clap),
     }
 }
-
-#[cfg(test)]
-mod tests {
-    pub fn test_not_utf8_environment_variables_error_out() {
-        let bad_byte = b"\x192";
-        std::env::set_var("ZR_HOME", bad_byte);
-        run()
-    }
-
-    pub fn test_plugin_name_must_have_author() {
-        let plugin_name = "test_plugin";
-        add();
-    }
-}
-
