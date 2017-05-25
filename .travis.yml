@@ -11,5 +11,7 @@ os:
 
 addons:
   apt:
+    sources:
+    - ppa:kalakris/cmake
     packages:
     - cmake
