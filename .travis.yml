@@ -1,5 +1,7 @@
 language: rust
 
+dist: trusty
+
 rust:
   - stable
   - beta
@@ -8,10 +10,3 @@ rust:
 os:
   - linux
   - osx
-
-addons:
-  apt:
-    sources:
-    - kalakris/cmake
-    packages:
-    - cmake
