@@ -97,8 +97,9 @@ impl Plugins {
             }
         }
 
-        let temp_filename = format!("{}init.zsh", std::env::temp_dir().display());
-        let mut temp_file = OpenOptions::new().write(true).create_new(true).open(&temp_filename).unwrap();
+        let filename = "init.zsh";
+        let temp_file_path = std::env::temp_dir().join(filename);
+        let mut temp_file = OpenOptions::new().write(true).create(true).truncate(true).open(&temp_file_path).expect("temp file");
 
         for plugin in &self.plugins {
             writeln!(temp_file, "{}", plugin)
@@ -107,7 +108,9 @@ impl Plugins {
         writeln!(temp_file, "autoload -Uz compinit; compinit -iCd $HOME/.zcompdump")
             .expect("Should be able to write the autoload line");
 
-        fs::rename(&temp_filename, &self.home.join("init.zsh")).unwrap();
+        let dst_file_path = &self.home.join(filename);
+        fs::copy(&temp_file_path, &dst_file_path).expect("Should be able to dst_file");
+        fs::remove_file(&temp_file_path).expect("Should be able to remove temp_file");
         Ok(())
     }
 }
