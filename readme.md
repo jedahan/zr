@@ -59,3 +59,7 @@ See [the wiki](/wiki) for more details.
     cargo +nightly build --features="clippy"
 
 [init.zsh]: https://github.com/jedahan/dotfiles/blob/master/.zshrc
+
+# thanks
+
+- [SX91](https://github.com/SX91) for contribute fixes for linux
