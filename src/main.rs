@@ -189,7 +189,7 @@ impl Plugin {
         if ! path.is_dir() {
             let parent = path.parent().unwrap();
             if ! parent.exists() {
-                fs::create_dir(parent).map_err(Error::Io)?;
+                fs::create_dir_all(parent).map_err(Error::Io)?;
             }
 
             let url = format!("https://github.com/{}/{}", author, name);
