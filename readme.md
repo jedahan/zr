@@ -1,6 +1,6 @@
 # z :rat:
 
-    zr 0.4.2
+    zr 0.4.3
     Jonathan Dahan <hi@jonathan.is>
     z:rat: - zsh plugin manager
 
@@ -38,8 +38,8 @@ If you'd like a different directory for `~/.zr`, just set `ZR_HOME`
 
 # speed
 
-Resetting, generating and loading the following _[init.zsh][]_ adds 0.15s on my 2012 13" retina macbook pro (going from 0.20s to 0.35s).
-See [the wiki](/wiki) for more details.
+Resettinh and generating the following __[init.zsh][]__ adds 0.15s on top of 0.20s load time for my 2012 13" retina macbook pro.
+See [the wiki](https://github.com/jedahan/zr/wiki) for more details.
 
     zr reset                                      # remove ~/.zr/init.zsh
     zr add zsh-users/prezto modules/git/alias.zsh # sensible git aliases
@@ -62,4 +62,4 @@ See [the wiki](/wiki) for more details.
 
 # thanks
 
-- [SX91](https://github.com/SX91) for contribute fixes for linux
+- [SX91](https://github.com/SX91) for linux fixes
