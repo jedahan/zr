@@ -1,6 +1,6 @@
 # z :rat:
 
-    zr 0.4.3
+    zr 0.4.4
     Jonathan Dahan <hi@jonathan.is>
     z:rat: - zsh plugin manager
 
@@ -53,6 +53,10 @@ See [the wiki](https://github.com/jedahan/zr/wiki) for more details.
     zr add frmendes/geometry                      # clean theme
     zr add jedahan/geometry-hydrate               # remind you to hydrate
     source ~/.zr/init.zsh
+
+## benchmarks
+
+    cargo +nightly bench
 
 # developing
 

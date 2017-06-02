@@ -100,7 +100,7 @@ impl Plugins {
             .expect("Should be able to write the autoload line");
 
         let dst_file_path = &self.home.join(filename);
-        fs::copy(&temp_file_path, &dst_file_path).expect("Should be able to dst_file");
+        fs::copy(&temp_file_path, &dst_file_path).expect("Should be able to copy to dst_file");
         fs::remove_file(&temp_file_path).expect("Should be able to remove temp_file");
         Ok(())
     }
