@@ -88,6 +88,10 @@ impl Plugins {
             self.plugins.push(plugin);
         }
 
+        Ok(())
+    }
+
+    pub fn save(&self) -> Result<(), Error> {
         let filename = "init.zsh";
         let temp_file_path = env::temp_dir().join(filename);
         let mut temp_file = OpenOptions::new().write(true).create(true).truncate(true).open(&temp_file_path).expect("temp file");

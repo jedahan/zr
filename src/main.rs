@@ -39,7 +39,13 @@ fn get_var(key: &str) -> Result<Option<String>, Error> {
     }
 }
 
-fn load_plugins_from(zr_home: &PathBuf) -> Plugins {
+fn add_and_save(zr_home: &PathBuf, plugin: &str, file: Option<&str>) -> Result<(), Error> {
+    let mut plugins = plugins_from(&zr_home);
+    plugins.add(plugin, file)?;
+    plugins.save()
+}
+
+fn plugins_from(zr_home: &PathBuf) -> Plugins {
     let mut plugins = Plugins::new(zr_home.clone());
     let zr_init = &zr_home.join("init.zsh");
     let plugin_home = &zr_home.join("plugins");
@@ -63,13 +69,28 @@ fn load_plugins_from(zr_home: &PathBuf) -> Plugins {
     plugins
 }
 
+fn load_plugins(zr_home: &PathBuf, parameters: Vec<String>) -> Result<(), Error> {
+    let mut plugins: Plugins = Plugins::new(zr_home.clone());
+
+    let mut params = parameters.iter().peekable();
+
+    while params.peek().is_some() {
+        let param = params.next().unwrap();
+        if params.peek().is_some() && params.peek().unwrap().contains(".") {
+            let _ = plugins.add(param, Some(params.next().unwrap()));
+        } else {
+            let _ = plugins.add(param, None);
+        }
+    }
+
+    plugins.save()
+}
+
 fn run() -> Result<(), Error> {
     let zr_home = get_var("ZR_HOME")?;
     let home = get_var("HOME")?;
     let default_home = format!("{}/.zr", home.unwrap());
     let path = PathBuf::from(zr_home.unwrap_or(default_home));
-
-    let mut plugins = load_plugins_from(&path);
 
     let mut zr = clap_app!(zr =>
         (version: crate_version!())
@@ -78,6 +99,9 @@ fn run() -> Result<(), Error> {
         (@subcommand reset => (about: "delete init file") )
         (@subcommand list => (about: "list plugins") )
         (@subcommand update => (about: "update plugins") )
+        (@subcommand load => (about: "load plugins fresh")
+            (@arg plugins: +required +multiple +takes_value "plugin/name [path/to/file.zsh] [[plugin/name [..]..]")
+        )
         (@subcommand add =>
             (about: "add plugin to init file")
             (@arg plugin: +required "plugin/name")
@@ -86,10 +110,11 @@ fn run() -> Result<(), Error> {
     );
 
     match zr.clone().get_matches().subcommand() {
-        ("add", Some(m)) => plugins.add(m.value_of("plugin").unwrap(), m.value_of("file")),
-        ("list", _) => plugins.list(),
-        ("reset", _) => plugins.reset(),
-        ("update", _) => plugins.update(),
+        ("add", Some(m)) => add_and_save(&path, m.value_of("plugin").unwrap(), m.value_of("file")),
+        ("load", Some(m)) => load_plugins(&path, m.values_of_lossy("plugins").unwrap()),
+        ("list", _) => plugins_from(&path).list(),
+        ("reset", _) => plugins_from(&path).reset(),
+        ("update", _) => plugins_from(&path).update(),
         (_, _) => zr.print_help().map_err(Error::Clap),
     }
 }
@@ -131,20 +156,18 @@ mod tests {
             git2::Repository::clone(&url, &plugin_path).unwrap();
         }
 
-        let mut plugins = load_plugins_from(&path);
-
         bencher.iter(|| {
-            let _ = plugins.add("zsh-users/prezto", Some("modules/git/alias.zsh"));
-            let _ = plugins.add("zsh-users/prezto", Some("modules/history/init.zsh"));
-            let _ = plugins.add("zsh-users/prezto", Some("modules/osx/init.zsh"));
-            let _ = plugins.add("junegunn/fzf", Some("shell/key-bindings.zsh"));
-            let _ = plugins.add("zsh-users/zsh-autosuggestions", Some(""));
-            let _ = plugins.add("zdharma/fast-syntax-highlighting", Some(""));
-            let _ = plugins.add("zsh-users/zsh-history-substring-search", Some(""));
-            let _ = plugins.add("molovo/tipz", Some(""));
-            let _ = plugins.add("changyuheng/zsh-interactive-cd", Some(""));
-            let _ = plugins.add("frmendes/geometry", Some(""));
-            let _ = plugins.add("jedahan/geometry-hydrate", Some(""));
+            let _ = plugins_from(&path).add("zsh-users/prezto", Some("modules/git/alias.zsh"));
+            let _ = plugins_from(&path).add("zsh-users/prezto", Some("modules/history/init.zsh"));
+            let _ = plugins_from(&path).add("zsh-users/prezto", Some("modules/osx/init.zsh"));
+            let _ = plugins_from(&path).add("junegunn/fzf", Some("shell/key-bindings.zsh"));
+            let _ = plugins_from(&path).add("zsh-users/zsh-autosuggestions", Some(""));
+            let _ = plugins_from(&path).add("zdharma/fast-syntax-highlighting", Some(""));
+            let _ = plugins_from(&path).add("zsh-users/zsh-history-substring-search", Some(""));
+            let _ = plugins_from(&path).add("molovo/tipz", Some(""));
+            let _ = plugins_from(&path).add("changyuheng/zsh-interactive-cd", Some(""));
+            let _ = plugins_from(&path).add("frmendes/geometry", Some(""));
+            let _ = plugins_from(&path).add("jedahan/geometry-hydrate", Some(""));
         } );
 
         use std::io::BufReader;

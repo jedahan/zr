@@ -15,6 +15,7 @@
         add       add plugin to init file
         help      Prints this message or the help of the given subcommand(s)
         list      list plugins
+        load      load all plugins in a single command
         reset     delete init file
         update    update plugins
 
@@ -24,34 +25,37 @@
 Add this to your *~/.zshrc*:
 
 ```zsh
-test -f $HOME/.zr/init.zsh && source $_ || {
-  zr add frmendes/geometry
-  zr add jedahan/geometry-hydrate
-  zr add junegunn/fzf shell/key-bindings.zsh  # just load key-bindings.zsh
-  exec zsh
+test -f ~/.zr/init.zsh || {
+  zr load \
+  frmendes/geometry \
+  jedahan/geometry-hydrate \
+  junegunn/fzf shell/key-bindings.zsh  # just load key-bindings.zsh
 }
+
+source ~/.zr/init.zsh
 ```
 
-When you want to add or remove plugins, just run `zr reset`
+After adding or removing plugins, run `zr reset`
 
 If you'd like a different directory for `~/.zr`, just set `ZR_HOME`
 
 # speed
 
-Resettinh and generating the following __[init.zsh][]__ adds 0.15s on top of 0.20s load time for my 2012 13" retina macbook pro.
+Resetting and generating the following __[init.zsh][]__ adds 0.08s on top of 0.21s load time for my 2012 13" retina macbook pro.
 See [the wiki](https://github.com/jedahan/zr/wiki) for more details.
 
-    zr reset                                      # remove ~/.zr/init.zsh
-    zr add zsh-users/prezto modules/git/alias.zsh # sensible git aliases
-    zr add zsh-users/prezto modules/osx/init.zsh  # some osx shortcuts
-    zr add junegunn/fzf shell/key-bindings.zsh    # fuzzy finder, try ^r, ^t, kill<tab>
-    zr add zsh-users/zsh-autosuggestions          # suggest from history
-    zr add zdharma/fast-syntax-highlighting       # commandline syntax highlighting
-    zr add zsh-users/zsh-history-substring-search # partial fuzzy history search
-    zr add molovo/tipz                            # help remember aliases
-    zr add changyuheng/zsh-interactive-cd         # tab complete fuzzy finder cd
-    zr add frmendes/geometry                      # clean theme
-    zr add jedahan/geometry-hydrate               # remind you to hydrate
+    zr load \
+    zsh-users/prezto modules/git/alias.zsh \
+    zsh-users/prezto modules/osx/init.zsh \
+    zsh-users/prezto modules/history/init.zsh \
+    junegunn/fzf shell/key-bindings.zsh \
+    zsh-users/zsh-autosuggestions \
+    zdharma/fast-syntax-highlighting \
+    zsh-users/zsh-history-substring-search \
+    molovo/tipz \
+    changyuheng/zsh-interactive-cd \
+    frmendes/geometry \
+    jedahan/geometry-hydrate\
     source ~/.zr/init.zsh
 
 ## benchmarks
