@@ -25,6 +25,7 @@ impl Plugin {
             }
 
             let url = format!("https://github.com/{}/{}", author, name);
+            println!("cloning {}", url);
             git2::Repository::clone(&url, &path).unwrap();
         }
         Ok(())
