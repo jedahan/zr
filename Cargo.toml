@@ -1,6 +1,6 @@
 [package]
 name = "zr"
-version = "0.4.5"
+version = "0.4.6"
 authors = ["Jonathan Dahan <hi@jonathan.is>"]
 
 [dependencies]
@@ -11,3 +11,11 @@ clippy = {version = "*", optional = true}
 
 [features]
 default = []
+
+[lib]
+name = "libzr"
+path = "src/lib.rs"
+
+[[bin]]
+name = "zr"
+path = "src/main.rs"

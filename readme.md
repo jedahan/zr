@@ -1,6 +1,6 @@
 # z :rat:
 
-    zr 0.4.5
+    zr 0.4.6
     Jonathan Dahan <hi@jonathan.is>
     z:rat: - zsh plugin manager
 
@@ -45,17 +45,17 @@ Resetting and generating the following __[init.zsh][]__ adds 0.08s on top of 0.2
 See [the wiki](https://github.com/jedahan/zr/wiki) for more details.
 
     zr load \
-    zsh-users/prezto modules/git/alias.zsh \
-    zsh-users/prezto modules/osx/init.zsh \
-    zsh-users/prezto modules/history/init.zsh \
-    junegunn/fzf shell/key-bindings.zsh \
-    zsh-users/zsh-autosuggestions \
-    zdharma/fast-syntax-highlighting \
-    zsh-users/zsh-history-substring-search \
-    molovo/tipz \
-    changyuheng/zsh-interactive-cd \
-    frmendes/geometry \
-    jedahan/geometry-hydrate\
+      zsh-users/prezto modules/git/alias.zsh \
+      zsh-users/prezto modules/osx/init.zsh \
+      zsh-users/prezto modules/history/init.zsh \
+      junegunn/fzf shell/key-bindings.zsh \
+      zsh-users/zsh-autosuggestions \
+      zdharma/fast-syntax-highlighting \
+      zsh-users/zsh-history-substring-search \
+      molovo/tipz \
+      changyuheng/zsh-interactive-cd \
+      frmendes/geometry \
+      jedahan/geometry-hydrate
     source ~/.zr/init.zsh
 
 ## benchmarks
