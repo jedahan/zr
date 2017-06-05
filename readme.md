@@ -1,6 +1,6 @@
 # z :rat:
 
-    zr 0.4.6
+    zr 0.4.7
     Jonathan Dahan <hi@jonathan.is>
     z:rat: - zsh plugin manager
 
@@ -12,11 +12,11 @@
         -V, --version    Prints version information
 
     SUBCOMMANDS:
-        add       add plugin to init file
+        add       add plugin to init file [DEPRECATED]
         help      Prints this message or the help of the given subcommand(s)
         list      list plugins
-        load      load all plugins in a single command
-        reset     delete init file
+        load      generate init file from plugin list
+        reset     delete init file [DEPRECATED]
         update    update plugins
 
 
@@ -25,17 +25,16 @@
 Add this to your *~/.zshrc*:
 
 ```zsh
-test -f ~/.zr/init.zsh || {
+# Generate new ~/.zr/init.zsh whenever ~/.zshrc is modified
+[[ ~/.zshrc -nt ~/.zr/init.zsh ]] && {
   zr load \
-  frmendes/geometry \
-  jedahan/geometry-hydrate \
-  junegunn/fzf shell/key-bindings.zsh  # just load key-bindings.zsh
+    frmendes/geometry \
+    jedahan/geometry-hydrate \
+    junegunn/fzf shell/key-bindings.zsh  # just load key-bindings.zsh
 }
 
 source ~/.zr/init.zsh
 ```
-
-After adding or removing plugins, run `zr reset`
 
 If you'd like a different directory for `~/.zr`, just set `ZR_HOME`
 

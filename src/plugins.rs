@@ -15,6 +15,7 @@ pub struct Plugins {
 
 impl Plugins {
     pub fn reset(&self) -> Result<(), Error> {
+        println!("[WARNING] reset is deprecated! Please migrate to load, which obsoletes reset and is much faster. reset will be removed in 0.5.0");
         let filepath = self.home.join("init.zsh");
         fs::remove_file(&filepath).or_else(|error|
              if error.kind() == ErrorKind::NotFound {

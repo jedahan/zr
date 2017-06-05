@@ -1,5 +1,5 @@
 use std::path::PathBuf;
-use std::io::{BufRead, BufReader};
+use std::io::{BufRead, BufReader, Write};
 use std::fs::OpenOptions;
 
 #[macro_use]
@@ -23,6 +23,8 @@ fn get_var(key: &str) -> Result<Option<String>, Error> {
 }
 
 pub fn add_and_save(zr_home: &PathBuf, plugin: &str, file: Option<&str>) -> Result<(), Error> {
+    writeln!(&mut std::io::stderr(), "[WARNING] add is deprecated! Please migrate to load, which is much faster. add will be removed in 0.5.0")
+            .expect("error writing to stderr");
     let mut plugins = plugins_from(&zr_home);
     plugins.add(plugin, file)?;
     plugins.save()

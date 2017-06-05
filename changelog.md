@@ -1,3 +1,9 @@
+# 0.5.0 unreleased
+
+Deprecated `add` and `reset`, as `load` is fast enough, and you can regen when mtime is different via
+
+    [[ ~/.zshrc -nt ~/.zr/init.zsh ]] && { zr load \ ... }
+
 # 0.4.6 fink
 
 Added `load` command, which is about twice as fast as generating init.zsh.

@@ -78,24 +78,3 @@ fn bench_load(bencher: &mut Bencher) {
         let _ = zr::load_plugins(&path, plugins.clone());
     } );
 }
-
-#[bench]
-fn bench_add(bencher: &mut Bencher) {
-    let path = clone_repos();
-
-    bencher.iter(|| {
-        let _ = zr::add_and_save(&path, "zsh-users/prezto", Some("modules/git/alias.zsh"));
-        let _ = zr::add_and_save(&path, "zsh-users/prezto", Some("modules/history/init.zsh"));
-        let _ = zr::add_and_save(&path, "zsh-users/prezto", Some("modules/osx/init.zsh"));
-        let _ = zr::add_and_save(&path, "junegunn/fzf", Some("shell/key-bindings.zsh"));
-        let _ = zr::add_and_save(&path, "zsh-users/zsh-autosuggestions", Some(""));
-        let _ = zr::add_and_save(&path, "zdharma/fast-syntax-highlighting", Some(""));
-        let _ = zr::add_and_save(&path, "zsh-users/zsh-history-substring-search", Some(""));
-        let _ = zr::add_and_save(&path, "molovo/tipz", Some(""));
-        let _ = zr::add_and_save(&path, "changyuheng/zsh-interactive-cd", Some(""));
-        let _ = zr::add_and_save(&path, "frmendes/geometry", Some(""));
-        let _ = zr::add_and_save(&path, "jedahan/geometry-hydrate", Some(""));
-    } );
-
-    test_52_lines(path);
-}
