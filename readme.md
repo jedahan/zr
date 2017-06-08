@@ -61,6 +61,10 @@ See [the wiki](https://github.com/jedahan/zr/wiki) for more details.
 
     cargo +nightly bench
 
+You can also bench a minimal zsh loading, with
+
+    time zsh -i -c "source \"$PWD\"/benches/zshrc-zr; zprof"
+
 # developing
 
     cargo +nightly build --features="clippy"
