@@ -1,4 +1,16 @@
-# 0.5.0 unreleased
+# 0.6.0 sabanus
+
+- Breaking change: `load` now requires the path to be part of the plugin definition
+
+    zr load author/plugin some/file.zsh
+
+Now must be
+
+    zr load author/plugin/some/file.zsh
+
+This fixes a lot of brittleness
+
+# 0.5.0
 
 + Added sample zshrc benchmark
 - Removed `add` and `reset`

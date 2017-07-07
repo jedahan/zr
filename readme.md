@@ -28,7 +28,7 @@ Add this to your *~/.zshrc*:
   zr load \
     frmendes/geometry \
     jedahan/geometry-hydrate \
-    junegunn/fzf shell/key-bindings.zsh  # just load key-bindings.zsh
+    junegunn/fzf/shell/key-bindings.zsh  # just load key-bindings.zsh
 }
 
 source ~/.zr/init.zsh
@@ -43,10 +43,10 @@ See [the wiki](https://github.com/jedahan/zr/wiki) for more details.
 
     # ~20ms
     zr load \
-      zsh-users/prezto modules/git/alias.zsh \
-      zsh-users/prezto modules/osx/init.zsh \
-      zsh-users/prezto modules/history/init.zsh \
-      junegunn/fzf shell/key-bindings.zsh \
+      zsh-users/prezto/modules/git/alias.zsh \
+      zsh-users/prezto/modules/osx/init.zsh \
+      zsh-users/prezto/modules/history/init.zsh \
+      junegunn/fzf/shell/key-bindings.zsh \
       zsh-users/zsh-autosuggestions \
       zdharma/fast-syntax-highlighting \
       zsh-users/zsh-history-substring-search \

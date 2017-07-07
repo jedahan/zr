@@ -49,14 +49,13 @@ pub fn plugins_from(zr_home: &PathBuf) -> Plugins {
 pub fn load_plugins(zr_home: &PathBuf, parameters: Vec<String>) -> Result<(), Error> {
     let mut plugins: Plugins = Plugins::new(zr_home.clone());
 
-    let mut params = parameters.iter().peekable();
-
-    while params.peek().is_some() {
-        let param = params.next().unwrap();
-        if params.peek().is_some() && params.peek().unwrap().contains(".") {
-            let _ = plugins.add(param, Some(params.next().unwrap()));
+    for param in parameters.iter() {
+        let name = param.split('/').collect::<Vec<_>>()[0..2].join("/");
+        let file = param.split('/').collect::<Vec<_>>()[2..].join("/");
+        if file == "" {
+            let _ = plugins.add(&name, None);
         } else {
-            let _ = plugins.add(param, None);
+            let _ = plugins.add(&name, Some(&file));
         }
     }
 
@@ -75,7 +74,7 @@ pub fn run() -> Result<(), Error> {
         (about: "z:rat: - zsh plugin manager")
         (@subcommand list => (about: "list plugins") )
         (@subcommand load => (about: "load plugins fresh")
-            (@arg plugins: +required +multiple +takes_value "plugin/name [path/to/file.zsh] [[plugin/name [..]..]")
+            (@arg plugins: +required +multiple +takes_value "plugin/name[/path/to/file.zsh] [[plugin/name [..]..]")
         )
         (@subcommand update => (about: "update plugins") )
     );

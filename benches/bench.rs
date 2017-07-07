@@ -61,10 +61,10 @@ fn bench_load(bencher: &mut Bencher) {
     let path = clone_repos();
 
      let plugins: Vec<String> = vec![
-         "zsh-users/prezto", "modules/git/alias.zsh",
-         "zsh-users/prezto", "modules/history/init.zsh",
-         "zsh-users/prezto", "modules/osx/init.zsh",
-         "junegunn/fzf", "shell/key-bindings.zsh",
+         "zsh-users/prezto/modules/git/alias.zsh",
+         "zsh-users/prezto/modules/history/init.zsh",
+         "zsh-users/prezto/modules/osx/init.zsh",
+         "junegunn/fzf/shell/key-bindings.zsh",
          "zsh-users/zsh-autosuggestions",
          "zdharma/fast-syntax-highlighting",
          "zsh-users/zsh-history-substring-search",
