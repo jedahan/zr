@@ -1,6 +1,6 @@
 # z :rat:
 
-    zr 0.5.0
+    zr 0.6.0
     Jonathan Dahan <hi@jonathan.is>
     z:rat: - zsh plugin manager
 
