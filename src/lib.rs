@@ -1,5 +1,5 @@
 use std::path::PathBuf;
-use std::io::{BufRead, BufReader, Write};
+use std::io::{BufRead, BufReader};
 use std::fs::OpenOptions;
 
 #[macro_use]
@@ -20,14 +20,6 @@ fn get_var(key: &str) -> Result<Option<String>, Error> {
         Err(NotPresent) => Ok(None),
         Err(NotUnicode(value)) => Err(Error::EnvironmentVariableNotUnicode { key: key.to_string(), value: value} ),
     }
-}
-
-pub fn add_and_save(zr_home: &PathBuf, plugin: &str, file: Option<&str>) -> Result<(), Error> {
-    writeln!(&mut std::io::stderr(), "[WARNING] add is deprecated! Please migrate to load, which is much faster. add will be removed in 0.5.0")
-            .expect("error writing to stderr");
-    let mut plugins = plugins_from(&zr_home);
-    plugins.add(plugin, file)?;
-    plugins.save()
 }
 
 pub fn plugins_from(zr_home: &PathBuf) -> Plugins {
@@ -81,24 +73,16 @@ pub fn run() -> Result<(), Error> {
         (version: crate_version!())
         (author: "Jonathan Dahan <hi@jonathan.is>")
         (about: "z:rat: - zsh plugin manager")
-        (@subcommand reset => (about: "delete init file") )
         (@subcommand list => (about: "list plugins") )
-        (@subcommand update => (about: "update plugins") )
         (@subcommand load => (about: "load plugins fresh")
             (@arg plugins: +required +multiple +takes_value "plugin/name [path/to/file.zsh] [[plugin/name [..]..]")
         )
-        (@subcommand add =>
-            (about: "add plugin to init file")
-            (@arg plugin: +required "plugin/name")
-            (@arg file: "optional/path/to/file.zsh")
-        )
+        (@subcommand update => (about: "update plugins") )
     );
 
     match zr.clone().get_matches().subcommand() {
-        ("add", Some(m)) => add_and_save(&path, m.value_of("plugin").unwrap(), m.value_of("file")),
-        ("load", Some(m)) => load_plugins(&path, m.values_of_lossy("plugins").unwrap()),
         ("list", _) => plugins_from(&path).list(),
-        ("reset", _) => plugins_from(&path).reset(),
+        ("load", Some(m)) => load_plugins(&path, m.values_of_lossy("plugins").unwrap()),
         ("update", _) => plugins_from(&path).update(),
         (_, _) => zr.print_help().map_err(Error::Clap),
     }

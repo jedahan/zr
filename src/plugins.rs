@@ -5,7 +5,7 @@ use error::Error;
 
 use std::{env, fmt, fs};
 use std::fs::OpenOptions;
-use std::io::{ErrorKind, Write};
+use std::io::Write;
 use std::path::PathBuf;
 
 pub struct Plugins {
@@ -14,17 +14,6 @@ pub struct Plugins {
 }
 
 impl Plugins {
-    pub fn reset(&self) -> Result<(), Error> {
-        println!("[WARNING] reset is deprecated! Please migrate to load, which obsoletes reset and is much faster. reset will be removed in 0.5.0");
-        let filepath = self.home.join("init.zsh");
-        fs::remove_file(&filepath).or_else(|error|
-             if error.kind() == ErrorKind::NotFound {
-                 Ok(())
-             } else {
-                 Err(Error::Io(error))
-             })
-    }
-
     pub fn update(&self) -> Result<(), Error> {
         for plugin in &self.plugins {
             let plugin_home = self.home.join("plugins").join(&plugin.author).join(&plugin.name);
@@ -34,7 +23,7 @@ impl Plugins {
                         let mut cb = git2::RemoteCallbacks::new();
                         cb.update_tips(|_, a, b| {
                             if ! a.is_zero() {
-                                println!("updated {}/{} from {:6}..{:6}", &plugin.author, &plugin.name, a, b);
+                                println!("updated {}/{} from {:.6}..{:.6}", &plugin.author, &plugin.name, a, b);
                             }
                             true
                         });

@@ -1,6 +1,6 @@
 # z :rat:
 
-    zr 0.4.8
+    zr 0.5.0
     Jonathan Dahan <hi@jonathan.is>
     z:rat: - zsh plugin manager
 
@@ -12,11 +12,9 @@
         -V, --version    Prints version information
 
     SUBCOMMANDS:
-        add       add plugin to init file [DEPRECATED]
         help      Prints this message or the help of the given subcommand(s)
         list      list plugins
         load      generate init file from plugin list
-        reset     delete init file [DEPRECATED]
         update    update plugins
 
 
