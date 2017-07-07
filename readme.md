@@ -38,9 +38,10 @@ If you'd like a different directory for `~/.zr`, just set `ZR_HOME`
 
 # speed
 
-Resetting and generating the following __[init.zsh][]__ adds 0.08s on top of 0.21s load time for my 2012 13" retina macbook pro.
+The following __[init.zsh][]__ takes 180ms total, with 20ms spent in `zr load` for my 2012 13" retina macbook pro.
 See [the wiki](https://github.com/jedahan/zr/wiki) for more details.
 
+    # ~20ms
     zr load \
       zsh-users/prezto modules/git/alias.zsh \
       zsh-users/prezto modules/osx/init.zsh \
@@ -53,7 +54,7 @@ See [the wiki](https://github.com/jedahan/zr/wiki) for more details.
       changyuheng/zsh-interactive-cd \
       frmendes/geometry \
       jedahan/geometry-hydrate
-    source ~/.zr/init.zsh
+    source ~/.zr/init.zsh # ~160ms
 
 ## benchmarks
 
