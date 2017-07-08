@@ -1,6 +1,6 @@
 # z :rat:
 
-    zr 0.6.0
+    zr 0.6.1
     Jonathan Dahan <hi@jonathan.is>
     z:rat: - zsh plugin manager
 
@@ -73,3 +73,4 @@ You can also bench a minimal zsh loading, with
 # thanks
 
 - [SX91](https://github.com/SX91) for linux fixes
+- [alanpearce](https://github.com/alanpearce) for bug reports and nix package

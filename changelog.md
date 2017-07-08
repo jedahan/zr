@@ -1,3 +1,7 @@
+# 0.6.1
+
++ Create supporting directories if they do not exist
+
 # 0.6.0 sabanus
 
 - Breaking change: `load` now requires the path to be part of the plugin definition
