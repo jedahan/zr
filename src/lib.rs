@@ -36,10 +36,7 @@ pub fn plugins_from(zr_home: &PathBuf) -> Plugins {
             .map(|line| PathBuf::from(line.split_whitespace().last().unwrap()))
             .map(|filepath| filepath.strip_prefix(&plugin_home).ok().unwrap().to_owned() )
             .collect::<Vec<_>>() {
-                let filename = filepath.to_str().to_owned().unwrap();
-                let name = filename.split('/').collect::<Vec<_>>()[0..2].join("/");
-                let file = filename.split('/').collect::<Vec<_>>()[2..].join("/");
-                let _ = plugins.add(&name, Some(&file));
+                let _ = plugins.add(filepath.to_str().to_owned().unwrap());
             }
     }
 
@@ -50,13 +47,7 @@ pub fn load_plugins(zr_home: &PathBuf, parameters: Vec<String>) -> Result<(), Er
     let mut plugins: Plugins = Plugins::new(zr_home.clone());
 
     for param in parameters.iter() {
-        let name = param.split('/').collect::<Vec<_>>()[0..2].join("/");
-        let file = param.split('/').collect::<Vec<_>>()[2..].join("/");
-        if file == "" {
-            let _ = plugins.add(&name, None);
-        } else {
-            let _ = plugins.add(&name, Some(&file));
-        }
+        let _ = plugins.add(param);
     }
 
     plugins.save()

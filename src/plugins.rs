@@ -53,16 +53,24 @@ impl Plugins {
         Ok(())
     }
 
-    pub fn add(&mut self, plugin_name: &str, file: Option<&str>) -> Result<(), Error> {
-        let plugin_path = PathBuf::from(plugin_name);
-        if plugin_path.components().count() != 2 {
-            return Err(Error::InvalidPluginName { plugin_name: plugin_name.to_string() })
+    pub fn add(&mut self, filename: &str) -> Result<(), Error> {
+        if filename.split('/').count() < 2 {
+            return Err(Error::InvalidPluginName { plugin_name: filename.to_string() })
         }
 
-        let name = plugin_path.components().last().unwrap().as_os_str().to_str().unwrap().to_string();
-        let author = plugin_path.parent().unwrap().components().last().unwrap().as_os_str().to_str().unwrap().to_string();
+        let mut fileiter = filename.split('/');
 
-        if let Some(filepath) = file {
+        let author = fileiter.next().unwrap().to_string();
+        let name = fileiter.next().unwrap().to_string();
+        let file = fileiter.collect::<Vec<_>>().join("/");
+
+        if file == "" && self.plugins.iter().all(|plugin| (&plugin.name, &plugin.author) != (&name, &author)) {
+            let plugin = Plugin::new(&self.home, &author.to_string(), &name)?;
+            self.plugins.push(plugin);
+        }
+
+        if file != "" {
+            let filepath = PathBuf::from(file);
             if self.plugins.iter().find(|plugin| (&plugin.name, &plugin.author) == (&name, &author)).is_none() {
                 let files = vec![PathBuf::from(&filepath)];
                 let plugin = Plugin::from_files(&self.home, &author, &name, files);
@@ -71,11 +79,6 @@ impl Plugins {
                 let file = self.home.join("plugins").join(&author).join(&name).join(&filepath);
                 plugin.files.insert(file);
             }
-        }
-
-        if file.is_none() && self.plugins.iter().all(|plugin| (&plugin.name, &plugin.author) != (&name, &author)) {
-            let plugin = Plugin::new(&self.home, &author, &name)?;
-            self.plugins.push(plugin);
         }
 
         Ok(())
