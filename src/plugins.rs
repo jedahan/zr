@@ -40,6 +40,10 @@ impl Plugins {
     }
 
     pub fn new(zr_home: PathBuf) -> Plugins {
+        if ! zr_home.exists() {
+            fs::create_dir_all(&zr_home)
+                .expect(format!("error creating zr_home dir '{:?}'",&zr_home).as_str());
+        }
         Plugins {
             home: zr_home.clone(),
             plugins: vec![]
