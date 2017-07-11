@@ -1,3 +1,10 @@
+# 0.7.0
+
++ Support for full urls like
+
+    git@gitlab.com:veggiemonk/almostontop.git
+    github.com/junegunn/fzf
+
 # 0.6.2
 
 + License under the MPL-2.0

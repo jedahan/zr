@@ -5,6 +5,25 @@
 
 Quick, simple zsh plugin manager
 
+
+Add this to your *~/.zshrc*
+
+```zsh
+# Generate new ~/.zr/init.zsh whenever ~/.zshrc is modified
+[[ ~/.zshrc -nt ~/.zr/init.zsh ]] && {
+  zr load \
+    frmendes/geometry \
+    jedahan/geometry-hydrate \
+    junegunn/fzf/shell/key-bindings.zsh \
+    git@gitlab.com:veggiemonk/almostontop.git
+}
+
+source ~/.zr/init.zsh
+```
+
+# usage
+
+    zr 0.7.0 nitidus
     Jonathan Dahan <hi@jonathan.is>
     z:rat: - zsh plugin manager
 
@@ -22,27 +41,11 @@ Quick, simple zsh plugin manager
         update    update plugins
 
 
-# usage
-
-Add this to your *~/.zshrc*:
-
-```zsh
-# Generate new ~/.zr/init.zsh whenever ~/.zshrc is modified
-[[ ~/.zshrc -nt ~/.zr/init.zsh ]] && {
-  zr load \
-    frmendes/geometry \
-    jedahan/geometry-hydrate \
-    junegunn/fzf/shell/key-bindings.zsh  # just load key-bindings.zsh
-}
-
-source ~/.zr/init.zsh
-```
-
 If you'd like a different directory for `~/.zr`, just set `ZR_HOME`
 
 # speed
 
-The following __[init.zsh][]__ takes 180ms total, with 20ms spent in `zr load` for my 2012 13" retina macbook pro.
+Generatings an init.zsh from the following __[zshrc][]__ takes 180ms total, with 20ms spent in `zr load` for my 2012 13" retina macbook pro.
 See [the wiki](https://github.com/jedahan/zr/wiki) for more details.
 
     # ~20ms

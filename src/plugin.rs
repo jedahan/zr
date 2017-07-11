@@ -2,44 +2,72 @@ extern crate git2;
 
 use std::collections::HashSet;
 use std::ffi::OsStr;
-use std::{fmt, fs, result};
+use std::{fs, result};
 use std::path::{Path, PathBuf};
 use std::iter::FromIterator;
+use std::cmp::{PartialEq, Eq};
 
 use error::*;
 
+#[derive(Clone,Debug)]
 pub struct Plugin {
+    pub host: String,
     pub author: String,
     pub name: String,
     pub files: HashSet<PathBuf>
 }
 
+impl PartialEq for Plugin {
+    fn eq(&self, other: &Plugin) -> bool {
+        self.host == other.host &&
+        self.author == other.author &&
+        self.name == other.name
+    }
+}
+impl Eq for Plugin {}
+
 /// A Plugin is an in-memory representation of
 /// the author, name, and files to load
 impl Plugin {
-    fn clone_if_empty(path: &Path, author: &str, name: &str) -> Result<(), Error> {
-        if ! path.is_dir() {
-            let parent = path.parent().unwrap();
-            if ! parent.exists() {
-                fs::create_dir(parent).map_err(Error::Io)?;
-            }
+    pub fn add(&mut self, zr_home: PathBuf, file: PathBuf) {
+        let full_path = zr_home
+            .join("plugins")
+            .join(&self.host)
+            .join(&self.author)
+            .join(&self.name)
+            .join(&file);
+        self.files.insert(full_path);
+    }
 
-            let url = format!("https://github.com/{}/{}", author, name);
-            println!("cloning {}", url);
-            git2::Repository::clone(&url, &path).unwrap();
+    fn init(plugin_home: &Path, plugin_path: &Path) -> Result<(), Error> {
+        let path = plugin_home.join(plugin_path);
+
+        if ! path.is_dir() {
+            fs::create_dir_all(&path).map_err(Error::Io)?;
         }
+
+        if let Err(_) = git2::Repository::open(&path) {
+            let url = format!("https://{}", &plugin_path.display());
+            println!("cloning {} to {}", &url, &path.display());
+            git2::Repository::clone(&url, path).map_err(Error::Git)?;
+        }
+
         Ok(())
     }
 
-    pub fn new(zr_home: &Path, author: &str, name: &str) -> Result<Plugin, Error> {
+    pub fn new(zr_home: &Path, host: &str, author: &str, name: &str) -> Result<Plugin, Error> {
         let plugin_home = zr_home.join("plugins");
-        if ! plugin_home.exists() {
-            fs::create_dir_all(&plugin_home)
-                .expect(format!("error creating plugin dir '{:?}'",&plugin_home).as_str());
-        }
-        let path = zr_home.join("plugins").join(&author).join(&name);
 
-        Plugin::clone_if_empty(&path, author, name)?;
+        let id = [host, author, name].join("/");
+        let plugin_path = PathBuf::from(&id);
+
+        if plugin_path.components().count() > 3 {
+            return Err(Error::InvalidIdentifier { id: id })
+        }
+
+        Plugin::init(&plugin_home, &plugin_path)?;
+
+        let path = plugin_home.join(&plugin_path);
 
         let files: Vec<PathBuf> = path.read_dir().unwrap()
             .filter_map(result::Result::ok)
@@ -60,41 +88,8 @@ impl Plugin {
                     zsh_plugin_files
                 }
             }
-
         };
 
-        Ok(Plugin { author: author.to_string(), name: name.to_string(), files: HashSet::from_iter(sources) } )
-    }
-
-    pub fn from_files(zr_home: &Path, author: &str, name: &str, files: Vec<PathBuf>) -> Plugin {
-        let path = zr_home.join("plugins").join(&author).join(&name);
-        let _ = Plugin::clone_if_empty(&path, author, name);
-
-        let mapped = files.iter().cloned().map(|file| path.join(&file)).collect();
-
-        Plugin {
-            author: author.to_string(),
-            name: name.to_string(),
-            files: mapped,
-        }
+        Ok(Plugin { host: host.to_string(), author: author.to_string(), name: name.to_string(), files: HashSet::from_iter(sources) } )
     }
 }
-
-impl fmt::Display for Plugin {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut basedirs = HashSet::new();
-        writeln!(f, "# {}/{}", self.author, self.name)?;
-        for file in &self.files {
-            if let Some(basedir) = file.parent() {
-                basedirs.insert(basedir);
-            }
-            writeln!(f, "source {}", file.display())?;
-        }
-        for basedir in basedirs {
-            writeln!(f, "fpath+={}/", basedir.display())?;
-            writeln!(f, "PATH={}:$PATH", basedir.display())?;
-        }
-        Ok(())
-    }
-}
-
