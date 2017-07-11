@@ -1,6 +1,9 @@
 # z :rat:
 
-    zr 0.6.1
+[![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](https://choosealicense.com/licenses/mpl-2.0/)
+
+Quick, simple zsh plugin manager
+
     Jonathan Dahan <hi@jonathan.is>
     z:rat: - zsh plugin manager
 

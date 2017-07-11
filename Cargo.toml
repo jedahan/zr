@@ -2,6 +2,13 @@
 name = "zr"
 version = "0.6.1"
 authors = ["Jonathan Dahan <hi@jonathan.is>"]
+description = "quick, simple zsh package manager"
+readme = "readme.md"
+keywords = ["zsh", "packge", "manager", "cli"]
+license = "MPL-2.0"
+
+[badges]
+travis-ci = { repository = "jedahan/zr" }
 
 [dependencies]
 clap = "~2"

@@ -1,3 +1,7 @@
+# 0.6.2
+
++ License under the MPL-2.0
+
 # 0.6.1
 
 + Create supporting directories if they do not exist
