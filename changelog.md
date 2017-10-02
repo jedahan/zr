@@ -1,6 +1,7 @@
 # 0.6.2
 
 + License under the MPL-2.0
++ Publish to crates.io
 
 # 0.6.1
 

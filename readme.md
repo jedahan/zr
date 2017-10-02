@@ -5,6 +5,7 @@
 
 Quick, simple zsh plugin manager
 
+    zr 0.6.2
     Jonathan Dahan <hi@jonathan.is>
     z:rat: - zsh plugin manager
 
@@ -21,6 +22,9 @@ Quick, simple zsh plugin manager
         load      generate init file from plugin list
         update    update plugins
 
+# install
+
+You can use crates.io and cargo to just `cargo install zr`
 
 # usage
 

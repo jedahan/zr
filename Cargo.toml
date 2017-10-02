@@ -1,11 +1,12 @@
 [package]
 name = "zr"
-version = "0.6.1"
+version = "0.6.2"
 authors = ["Jonathan Dahan <hi@jonathan.is>"]
 description = "quick, simple zsh package manager"
 readme = "readme.md"
-keywords = ["zsh", "packge", "manager", "cli"]
+keywords = ["zsh", "package", "manager", "cli"]
 license = "MPL-2.0"
+repository = "https://github.com/jedahan/zr.git"
 
 [badges]
 travis-ci = { repository = "jedahan/zr" }
