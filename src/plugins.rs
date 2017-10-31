@@ -17,24 +17,16 @@ impl Plugins {
     pub fn update(&self) -> Result<(), Error> {
         for plugin in &self.plugins {
             let plugin_home = self.home.join("plugins").join(&plugin.author).join(&plugin.name);
-            if let Ok(repo) = git2::Repository::open(&plugin_home) {
-                if let Ok(remotes) = repo.remotes() {
-                    if let Some(first_remote) = remotes.get(0) {
-                        let mut cb = git2::RemoteCallbacks::new();
-                        cb.update_tips(|_, a, b| {
-                            if ! a.is_zero() {
-                                println!("updated {}/{} from {:.6}..{:.6}", &plugin.author, &plugin.name, a, b);
-                            }
-                            true
-                        });
-                        let mut opts = git2::FetchOptions::new();
-                        opts.remote_callbacks(cb);
-                        let mut remote = repo.find_remote(first_remote).unwrap();
-                        let refspec = "refs/heads/*:refs/heads/*";
-                        remote.fetch(&[refspec], Some(&mut opts), None).map_err(Error::Git)?;
-                    }
-                }
-            }
+            let repo = git2::Repository::open(&plugin_home).map_err(Error::Git)?;
+            let mut remote = repo.find_remote("origin").map_err(Error::Git)?;
+            let mut callbacks = git2::RemoteCallbacks::new();
+            callbacks.update_tips(|refspec, from, to| {
+                println!("updated {} {}/{} from {:.6}..{:.6}", refspec, &plugin.author, &plugin.name, from, to);
+                true
+            });
+            let mut options = git2::FetchOptions::new();
+            options.remote_callbacks(callbacks);
+            remote.fetch(&["refs/heads/master:refs/heads/master"], Some(&mut options), None).map_err(Error::Git)?;
         }
         Ok(())
     }
