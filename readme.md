@@ -1,9 +1,9 @@
-# z :rat:
+### z :rat:
+
+<img src="zrat.png" alt="zrat" title="zrat" align="right" width=200 />
 
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](https://choosealicense.com/licenses/mpl-2.0/)
 [![Build Status](https://travis-ci.org/jedahan/zr.svg?branch=master)](https://travis-ci.org/jedahan/zr)
-
-<img src="zrat.png" alt="zrat" title="zrat" align="right" width=200 />
 
 Quick, simple zsh plugin manager
 
@@ -24,11 +24,11 @@ Quick, simple zsh plugin manager
         load      generate init file from plugin list
         update    update plugins
 
-# install
+#### install
 
 You can use crates.io and cargo to just `cargo install zr`
 
-# usage
+#### usage
 
 Add this to your *~/.zshrc*:
 
@@ -46,7 +46,7 @@ source ~/.zr/init.zsh
 
 If you'd like a different directory for `~/.zr`, just set `ZR_HOME`
 
-# speed
+#### speed
 
 The following __[init.zsh][]__ takes 180ms total, with 20ms spent in `zr load` for my 2012 13" retina macbook pro.
 See [the wiki](https://github.com/jedahan/zr/wiki) for more details.
@@ -66,7 +66,7 @@ See [the wiki](https://github.com/jedahan/zr/wiki) for more details.
       jedahan/geometry-hydrate
     source ~/.zr/init.zsh # ~160ms
 
-## benchmarks
+#### benchmarks
 
     cargo +nightly bench
 
@@ -74,13 +74,13 @@ You can also bench a minimal zsh loading, with
 
     time zsh -i -c "source \"$PWD\"/benches/zshrc-zr; zprof"
 
-# developing
+#### developing
 
     cargo +nightly build --features="clippy"
 
 [init.zsh]: https://github.com/jedahan/dotfiles/blob/master/.zshrc
 
-# thanks
+#### thanks
 
 - [SX91](https://github.com/SX91) for linux fixes
 - [alanpearce](https://github.com/alanpearce) for bug reports and nix package
