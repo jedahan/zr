@@ -12,7 +12,7 @@ repository = "https://github.com/jedahan/zr.git"
 travis-ci = { repository = "jedahan/zr" }
 
 [dependencies]
-clap = "2.26"
+clap = "2.29"
 git2 = "0.6"
 libc = "0.2"
 clippy = {version = "0.0", optional = true}
