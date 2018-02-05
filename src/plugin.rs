@@ -3,8 +3,9 @@ extern crate git2;
 use std::collections::HashSet;
 use std::ffi::OsStr;
 use std::{fmt, fs, result};
-use std::path::{Path, PathBuf};
+use std::path::{Path, PathBuf, Display};
 use std::iter::FromIterator;
+use std::process::Command;
 
 use error::*;
 
@@ -81,6 +82,7 @@ impl Plugin {
 }
 
 impl fmt::Display for Plugin {
+    #[cfg(not(target_os = "windows"))]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut basedirs = HashSet::new();
         writeln!(f, "# {}/{}", self.author, self.name)?;
@@ -96,5 +98,32 @@ impl fmt::Display for Plugin {
         }
         Ok(())
     }
-}
 
+    #[cfg(target_os = "windows")]
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut basedirs = HashSet::new();
+        writeln!(f, "# {}/{}", self.author, self.name)?;
+
+        let convert = |d: Display| -> String {
+            let mut s = format!("{}", d);
+            s = s.replace("\\", "/");
+            let output = Command::new("cygpath")
+                                .args(&["-u", &s])
+                                .output()
+                                .expect("failed to execute cygpath");
+            format!("{}", String::from_utf8_lossy(&output.stdout).trim_right())
+        };
+
+        for file in &self.files {
+            if let Some(basedir) = file.parent() {
+                basedirs.insert(basedir);
+            }
+            writeln!(f, "source {}", convert(file.display()))?;
+        }
+        for basedir in basedirs {
+            writeln!(f, "fpath+={}/", convert(basedir.display()))?;
+            writeln!(f, "PATH={}:$PATH", convert(basedir.display()))?;
+        }
+        Ok(())
+    }
+}
