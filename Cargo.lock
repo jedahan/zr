@@ -502,7 +502,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "zr"
-version = "0.6.4"
+version = "0.6.5"
 dependencies = [
  "clap 2.29.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "clippy 0.0.177 (registry+https://github.com/rust-lang/crates.io-index)",

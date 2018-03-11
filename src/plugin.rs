@@ -81,19 +81,24 @@ impl Plugin {
 }
 
 impl fmt::Display for Plugin {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         let mut basedirs = HashSet::new();
-        writeln!(f, "# {}/{}", self.author, self.name)?;
+        writeln!(formatter, "# {}/{}", self.author, self.name)?;
         for file in &self.files {
             if let Some(basedir) = file.parent() {
                 basedirs.insert(basedir);
             }
-            writeln!(f, "source {}", file.display())?;
+            if let Some(filename) = file.to_str() {
+                writeln!(formatter, "source {}", filename.replace("\\","/"))?;
+            }
         }
-        for basedir in basedirs {
-            writeln!(f, "fpath+={}/", basedir.display())?;
-            writeln!(f, "PATH={}:$PATH", basedir.display())?;
+
+        for basedir in basedirs.iter().filter_map(|b| b.to_str()) {
+            let dir = basedir.replace("\\","/");
+            writeln!(formatter, "fpath+={}/", dir)?;
+            writeln!(formatter, "PATH={}:$PATH", dir)?;
         }
+
         Ok(())
     }
 }

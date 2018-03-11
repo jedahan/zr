@@ -1,3 +1,7 @@
+# 0.6.5
+
++ Fix path generation on windows (thanks @nshtg!)
+
 # 0.6.4
 
 + Update dependencies

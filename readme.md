@@ -7,7 +7,7 @@
 
 Quick, simple zsh plugin manager
 
-    zr 0.6.3
+    zr 0.6.5
     Jonathan Dahan <hi@jonathan.is>
     z:rat: - zsh plugin manager
 
@@ -84,3 +84,4 @@ You can also bench a minimal zsh loading, with
 
 - [SX91](https://github.com/SX91) for linux fixes
 - [alanpearce](https://github.com/alanpearce) for bug reports and nix package
+- [nshtg](https://github.com/nshtg) for bug reports and windows fix
