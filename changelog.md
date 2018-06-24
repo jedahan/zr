@@ -1,3 +1,7 @@
+# 0.6.6
+
++ Update to rust 2018
+
 # 0.6.5
 
 + Fix path generation on windows (thanks @nshtg!)

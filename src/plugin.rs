@@ -1,14 +1,12 @@
-extern crate git2;
-
 use std::collections::HashSet;
 use std::ffi::OsStr;
 use std::{fmt, fs, result};
 use std::path::{Path, PathBuf};
 use std::iter::FromIterator;
 
-use error::*;
+use crate::error::Error;
 
-pub struct Plugin {
+crate struct Plugin {
     pub author: String,
     pub name: String,
     pub files: HashSet<PathBuf>

@@ -1,12 +1,10 @@
-extern crate git2;
-
-use plugin::Plugin;
-use error::Error;
-
 use std::{env, fmt, fs};
 use std::fs::OpenOptions;
 use std::io::Write;
 use std::path::PathBuf;
+
+use crate::error::Error;
+use crate::plugin::Plugin;
 
 pub struct Plugins {
     home: PathBuf,

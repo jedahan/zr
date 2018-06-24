@@ -1,3 +1,5 @@
+cargo-features = [ "edition" ]
+
 [package]
 name = "zr"
 version = "0.6.6"
@@ -7,6 +9,7 @@ readme = "readme.md"
 keywords = ["zsh", "package", "manager", "cli"]
 license = "MPL-2.0"
 repository = "https://github.com/jedahan/zr.git"
+edition = "2018"
 
 [badges]
 travis-ci = { repository = "jedahan/zr" }
@@ -15,14 +18,3 @@ travis-ci = { repository = "jedahan/zr" }
 clap = "2.31.2"
 git2 = "0.7.1"
 libc = "0.2.42"
-
-[features]
-default = []
-
-[lib]
-name = "libzr"
-path = "src/lib.rs"
-
-[[bin]]
-name = "zr"
-path = "src/main.rs"
