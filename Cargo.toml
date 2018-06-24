@@ -1,6 +1,6 @@
 [package]
 name = "zr"
-version = "0.6.5"
+version = "0.6.6"
 authors = ["Jonathan Dahan <hi@jonathan.is>"]
 description = "quick, simple zsh package manager"
 readme = "readme.md"
@@ -12,9 +12,9 @@ repository = "https://github.com/jedahan/zr.git"
 travis-ci = { repository = "jedahan/zr" }
 
 [dependencies]
-clap = "2.29"
-git2 = "0.6"
-libc = "0.2"
+clap = "2.31.2"
+git2 = "0.7.1"
+libc = "0.2.42"
 
 [features]
 default = []
