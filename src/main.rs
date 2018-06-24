@@ -1,8 +1,8 @@
 #![feature(rust_2018_preview, use_extern_macros)]
 use clap::{clap_app, crate_version};
-use std::path::PathBuf;
-use std::io::{BufRead, BufReader};
 use std::fs::OpenOptions;
+use std::io::{BufRead, BufReader};
+use std::path::PathBuf;
 
 pub mod error;
 pub mod plugin;
@@ -42,7 +42,10 @@ fn get_var(key: &str) -> Result<Option<String>, Error> {
     match std::env::var(key) {
         Ok(value) => Ok(Some(value)),
         Err(NotPresent) => Ok(None),
-        Err(NotUnicode(value)) => Err(Error::EnvironmentVariableNotUnicode { key: key.to_string(), value: value} ),
+        Err(NotUnicode(value)) => Err(Error::EnvironmentVariableNotUnicode {
+            key: key.to_string(),
+            value: value,
+        }),
     }
 }
 
@@ -58,10 +61,11 @@ pub fn plugins_from(zr_home: &PathBuf) -> Plugins {
             .map(|line| line.unwrap())
             .filter(|line| line.starts_with("source"))
             .map(|line| PathBuf::from(line.split_whitespace().last().unwrap()))
-            .map(|filepath| filepath.strip_prefix(&plugin_home).ok().unwrap().to_owned() )
-            .collect::<Vec<_>>() {
-                let _ = plugins.add(filepath.to_str().to_owned().unwrap());
-            }
+            .map(|filepath| filepath.strip_prefix(&plugin_home).ok().unwrap().to_owned())
+            .collect::<Vec<_>>()
+        {
+            let _ = plugins.add(filepath.to_str().to_owned().unwrap());
+        }
     }
 
     plugins
