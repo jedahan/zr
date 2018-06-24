@@ -74,10 +74,6 @@ You can also bench a minimal zsh loading, with
 
     time zsh -i -c "source \"$PWD\"/benches/zshrc-zr; zprof"
 
-#### developing
-
-    cargo +nightly build --features="clippy"
-
 [init.zsh]: https://github.com/jedahan/dotfiles/blob/master/.zshrc
 
 #### thanks

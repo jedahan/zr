@@ -15,7 +15,6 @@ travis-ci = { repository = "jedahan/zr" }
 clap = "2.29"
 git2 = "0.6"
 libc = "0.2"
-clippy = {version = "0.0", optional = true}
 
 [features]
 default = []
