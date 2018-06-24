@@ -30,7 +30,7 @@ fn main() -> Result<(), Error> {
 
     match zr.clone().get_matches().subcommand() {
         ("list", _) => plugins_from(&path).list(),
-        ("load", Some(m)) => load_plugins(&path, m.values_of_lossy("plugins").unwrap()),
+        ("load", Some(m)) => load_plugins(&path, &m.values_of_lossy("plugins").unwrap()),
         ("update", _) => plugins_from(&path).update(),
         (_, _) => zr.print_help().map_err(Error::Clap),
     }
@@ -44,13 +44,13 @@ fn get_var(key: &str) -> Result<Option<String>, Error> {
         Err(NotPresent) => Ok(None),
         Err(NotUnicode(value)) => Err(Error::EnvironmentVariableNotUnicode {
             key: key.to_string(),
-            value: value,
+            value,
         }),
     }
 }
 
 pub fn plugins_from(zr_home: &PathBuf) -> Plugins {
-    let mut plugins = Plugins::new(zr_home.clone());
+    let mut plugins = Plugins::new(zr_home);
     let zr_init = &zr_home.join("init.zsh");
     let plugin_home = &zr_home.join("plugins");
 
@@ -71,10 +71,10 @@ pub fn plugins_from(zr_home: &PathBuf) -> Plugins {
     plugins
 }
 
-pub fn load_plugins(zr_home: &PathBuf, parameters: Vec<String>) -> Result<(), Error> {
-    let mut plugins: Plugins = Plugins::new(zr_home.clone());
+pub fn load_plugins(zr_home: &PathBuf, parameters: &[String]) -> Result<(), Error> {
+    let mut plugins: Plugins = Plugins::new(zr_home);
 
-    for param in parameters.iter() {
+    for param in parameters {
         let _ = plugins.add(param);
     }
 

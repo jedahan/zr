@@ -42,10 +42,10 @@ impl Plugins {
         Ok(())
     }
 
-    pub fn new(zr_home: PathBuf) -> Plugins {
+    pub fn new(zr_home: &PathBuf) -> Plugins {
         if !zr_home.exists() {
             fs::create_dir_all(&zr_home)
-                .expect(format!("error creating zr_home dir '{:?}'", &zr_home).as_str());
+                .unwrap_or_else(|_| panic!("error creating zr_home dir '{:?}'", &zr_home));
         }
         Plugins {
             home: zr_home.clone(),
@@ -92,7 +92,7 @@ impl Plugins {
                 .is_none()
             {
                 let files = vec![PathBuf::from(&filepath)];
-                let plugin = Plugin::from_files(&self.home, &author, &name, files);
+                let plugin = Plugin::from_files(&self.home, &author, &name, &files);
                 self.plugins.push(plugin);
             } else if let Some(plugin) = self
                 .plugins

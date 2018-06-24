@@ -33,7 +33,7 @@ impl Plugin {
         let plugin_home = zr_home.join("plugins");
         if !plugin_home.exists() {
             fs::create_dir_all(&plugin_home)
-                .expect(format!("error creating plugin dir '{:?}'", &plugin_home).as_str());
+                .unwrap_or_else(|_| panic!("error creating plugin dir '{:?}'", &plugin_home));
         }
         let path = zr_home.join("plugins").join(&author).join(&name);
 
@@ -82,7 +82,7 @@ impl Plugin {
         })
     }
 
-    pub fn from_files(zr_home: &Path, author: &str, name: &str, files: Vec<PathBuf>) -> Plugin {
+    pub fn from_files(zr_home: &Path, author: &str, name: &str, files: &[PathBuf]) -> Plugin {
         let path = zr_home.join("plugins").join(&author).join(&name);
         let _ = Plugin::clone_if_empty(&path, author, name);
 
