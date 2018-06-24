@@ -7,7 +7,7 @@
 
 Quick, simple zsh plugin manager
 
-    zr 0.6.5
+    zr 0.6.6
     Jonathan Dahan <hi@jonathan.is>
     z:rat: - zsh plugin manager
 
@@ -48,33 +48,35 @@ If you'd like a different directory for `~/.zr`, just set `ZR_HOME`
 
 #### speed
 
-The following __[init.zsh][]__ takes 180ms total, with 20ms spent in `zr load` for my 2012 13" retina macbook pro.
+The following __[init.zsh][]__ takes 180ms total, with 25ms spent in `zr load` for my 2012 13" retina macbook pro.
+
 See [the wiki](https://github.com/jedahan/zr/wiki) for more details.
 
-    # ~20ms
-    zr load \
-      zsh-users/prezto/modules/git/alias.zsh \
-      zsh-users/prezto/modules/osx/init.zsh \
-      zsh-users/prezto/modules/history/init.zsh \
-      junegunn/fzf/shell/key-bindings.zsh \
-      zsh-users/zsh-autosuggestions \
-      zdharma/fast-syntax-highlighting \
-      zsh-users/zsh-history-substring-search \
-      molovo/tipz \
-      changyuheng/zsh-interactive-cd \
-      frmendes/geometry \
-      jedahan/geometry-hydrate
-    source ~/.zr/init.zsh # ~160ms
+```zsh
+cargo install hyperfine
+hyperfine --warmup 3 'zsh -d -f -l -c "source benchmark.zsh && zrinit && exit"'
+Time (mean ± σ):      26.0 ms ±   4.6 ms
+```
 
-#### benchmarks
-
-    cargo +nightly bench
-
-You can also bench a minimal zsh loading, with
-
-    time zsh -i -c "source \"$PWD\"/benches/zshrc-zr; zprof"
-
-[init.zsh]: https://github.com/jedahan/dotfiles/blob/master/.zshrc
+```zsh
+# benchmark.zsh
+function zrinit {
+  zr load sorin-ionescu/prezto/modules/git/alias.zsh \
+    sorin-ionescu/prezto/modules/history/init.zsh \
+    junegunn/fzf/shell/key-bindings.zsh \
+    zsh-users/zsh-autosuggestions \
+    zdharma/fast-syntax-highlighting \
+    molovo/tipz \
+    geometry-zsh/geometry \
+    jedahan/geometry-hydrate \
+    jedahan/geometry-todo \
+    geometry-zsh/geometry \
+    ael-code/zsh-colored-man-pages \
+    momo-lab/zsh-abbrev-alias \
+    jedahan/alacritty-completions \
+    zpm-zsh/ssh
+}
+```
 
 #### thanks
 
