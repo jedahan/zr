@@ -13,16 +13,18 @@ pub enum Error {
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use self::Error::*;
+
         match self {
-            Error::EnvironmentVariableNotUnicode {key,  value} =>
+            EnvironmentVariableNotUnicode {key,  value} =>
                 write!(f, "The value in the environment variable '{}' is not utf-8: {}", key, value.to_string_lossy()),
-            Error::InvalidPluginName { plugin_name} =>
+            InvalidPluginName { plugin_name} =>
                 write!(f, "The plugin name must be formatted 'author/name', found '{}'", plugin_name),
-            Error::Clap(error) =>
+            Clap(error) =>
                 write!(f, "Clap error: {}", error.to_string()),
-            Error::Io(error) =>
+            Io(error) =>
                 write!(f, "Io error: {}", error.to_string()),
-            Error::Git(error) =>
+            Git(error) =>
                 write!(f, "Git error: {}", error.to_string()),
         }
     }
