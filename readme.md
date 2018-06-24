@@ -48,13 +48,13 @@ If you'd like a different directory for `~/.zr`, just set `ZR_HOME`
 
 #### speed
 
-The following __[init.zsh][]__ takes 180ms total, with 25ms spent in `zr load` for my 2012 13" retina macbook pro.
+The following __[init.zsh][]__ takes 180ms total, with 26ms spent in `zr load` for my 2012 13" retina macbook pro.
 
 See [the wiki](https://github.com/jedahan/zr/wiki) for more details.
 
 ```zsh
-cargo install hyperfine
-hyperfine --warmup 3 'zsh -d -f -l -c "source benchmark.zsh && zrinit && exit"'
+# cargo install hyperfine
+# hyperfine --warmup 3 'zsh -d -f -l -c "source benchmark.zsh && zrinit && exit"'
 Time (mean ± σ):      26.0 ms ±   4.6 ms
 ```
 
