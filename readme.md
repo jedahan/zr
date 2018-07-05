@@ -33,8 +33,9 @@ You can use crates.io and cargo to just `cargo install zr`
 Add this to your *~/.zshrc*:
 
 ```zsh
-# Generate new ~/.zr/init.zsh whenever it is not exist or ~/.zshrc is modified
-if [ ! -f ~/.zr/init.zsh ] || [[ ~/.zshrc -nt ~/.zr/init.zsh ]]; then
+# Generate new ~/.zr/init.zsh if it does not exist or ~/.zshrc is newer
+if [[ ! -f ~/.zr/init.zsh ]] || [[ ~/.zshrc -nt ~/.zr/init.zsh ]]; then
+  test -d ~/.zr || mkdir $_
   zr load \
     frmendes/geometry \
     jedahan/geometry-hydrate \
