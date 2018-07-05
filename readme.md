@@ -33,13 +33,13 @@ You can use crates.io and cargo to just `cargo install zr`
 Add this to your *~/.zshrc*:
 
 ```zsh
-# Generate new ~/.zr/init.zsh whenever ~/.zshrc is modified
-[[ ~/.zshrc -nt ~/.zr/init.zsh ]] && {
+# Generate new ~/.zr/init.zsh whenever it is not exist or ~/.zshrc is modified
+if [ ! -f ~/.zr/init.zsh ] || [[ ~/.zshrc -nt ~/.zr/init.zsh ]]; then
   zr load \
     frmendes/geometry \
     jedahan/geometry-hydrate \
     junegunn/fzf/shell/key-bindings.zsh  # just load key-bindings.zsh
-}
+fi
 
 source ~/.zr/init.zsh
 ```
