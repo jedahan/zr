@@ -35,7 +35,6 @@ Add this to your *~/.zshrc*:
 ```zsh
 # Generate new ~/.zr/init.zsh if it does not exist or ~/.zshrc is newer
 if [[ ! -f ~/.zr/init.zsh ]] || [[ ~/.zshrc -nt ~/.zr/init.zsh ]]; then
-  test -d ~/.zr || mkdir $_
   zr load \
     frmendes/geometry \
     jedahan/geometry-hydrate \
@@ -84,3 +83,4 @@ function zrinit {
 - [SX91](https://github.com/SX91) for linux fixes
 - [alanpearce](https://github.com/alanpearce) for bug reports and nix package
 - [nshtg](https://github.com/nshtg) for bug reports and windows fix
+- [foray1010](https://github.com/foray1010) for improving install instructions
