@@ -1,4 +1,4 @@
-#![feature(rust_2018_preview, use_extern_macros)]
+#![feature(crate_visibility_modifier)]
 use clap::{clap_app, crate_version};
 use std::fs::OpenOptions;
 use std::io::{BufRead, BufReader};

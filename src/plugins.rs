@@ -73,40 +73,42 @@ impl Plugins {
         let name = fileiter.next().unwrap().to_string();
         let file = fileiter.collect::<Vec<_>>().join("/");
 
-        if file == ""
-            && self
-                .plugins
-                .iter()
-                .all(|plugin| (&plugin.name, &plugin.author) != (&name, &author))
+        if file == "" {
+            return Ok(());
+        }
+
+        let filepath = PathBuf::from(file);
+
+        if self
+            .plugins
+            .iter()
+            .all(|plugin| (&plugin.name, &plugin.author) != (&name, &author))
         {
             let plugin = Plugin::new(&self.home, &author.to_string(), &name)?;
             self.plugins.push(plugin);
         }
 
-        if file != "" {
-            let filepath = PathBuf::from(file);
-            if self
-                .plugins
-                .iter()
-                .find(|plugin| (&plugin.name, &plugin.author) == (&name, &author))
-                .is_none()
-            {
-                let files = vec![PathBuf::from(&filepath)];
-                let plugin = Plugin::from_files(&self.home, &author, &name, &files);
-                self.plugins.push(plugin);
-            } else if let Some(plugin) = self
-                .plugins
-                .iter_mut()
-                .find(|plugin| (&plugin.name, &plugin.author) == (&name, &author))
-            {
-                let file = self
-                    .home
-                    .join("plugins")
-                    .join(&author)
-                    .join(&name)
-                    .join(&filepath);
-                plugin.files.insert(file);
-            }
+        if self
+            .plugins
+            .iter()
+            .find(|plugin| (&plugin.name, &plugin.author) == (&name, &author))
+            .is_none()
+        {
+            let files = vec![PathBuf::from(&filepath)];
+            let plugin = Plugin::from_files(&self.home, &author, &name, &files);
+            self.plugins.push(plugin);
+        } else if let Some(plugin) = self
+            .plugins
+            .iter_mut()
+            .find(|plugin| (&plugin.name, &plugin.author) == (&name, &author))
+        {
+            let file = self
+                .home
+                .join("plugins")
+                .join(&author)
+                .join(&name)
+                .join(&filepath);
+            plugin.files.insert(file);
         }
 
         Ok(())
@@ -128,7 +130,8 @@ impl Plugins {
         writeln!(
             temp_file,
             "autoload -Uz compinit; compinit -iCd $HOME/.zcompdump"
-        ).expect("Should be able to write the autoload line");
+        )
+        .expect("Should be able to write the autoload line");
 
         let dst_file_path = &self.home.join(filename);
         fs::copy(&temp_file_path, &dst_file_path).expect("Should be able to copy to dst_file");

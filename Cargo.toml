@@ -1,8 +1,6 @@
-cargo-features = [ "edition" ]
-
 [package]
 name = "zr"
-version = "0.6.6"
+version = "0.6.7"
 authors = ["Jonathan Dahan <hi@jonathan.is>"]
 description = "quick, simple zsh package manager"
 readme = "readme.md"
@@ -15,6 +13,6 @@ edition = "2018"
 travis-ci = { repository = "jedahan/zr" }
 
 [dependencies]
-clap = "2.31.2"
-git2 = "0.7.1"
-libc = "0.2.42"
+clap = "2.32.0"
+git2 = "0.7.5"
+libc = "0.2.43"

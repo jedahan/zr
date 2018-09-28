@@ -7,7 +7,7 @@
 
 Quick, simple zsh plugin manager
 
-    zr 0.6.6
+    zr 0.6.7
     Jonathan Dahan <hi@jonathan.is>
     z:rat: - zsh plugin manager
 
@@ -48,7 +48,7 @@ If you'd like a different directory for `~/.zr`, just set `ZR_HOME`
 
 #### speed
 
-The following __[init.zsh][]__ takes 180ms total, with 26ms spent in `zr load` for my 2012 13" retina macbook pro.
+The following benchmark.zsh takes 180ms total, with 26ms spent in `zr load` for my 2012 13" retina macbook pro.
 
 See [the wiki](https://github.com/jedahan/zr/wiki) for more details.
 
@@ -84,3 +84,4 @@ function zrinit {
 - [alanpearce](https://github.com/alanpearce) for bug reports and nix package
 - [nshtg](https://github.com/nshtg) for bug reports and windows fix
 - [foray1010](https://github.com/foray1010) for improving install instructions
+- everyone on [#rust-beginners](irc://irc.mozilla.org/rust-beginners)
