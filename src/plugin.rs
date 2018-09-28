@@ -82,16 +82,16 @@ impl Plugin {
         })
     }
 
-    pub fn from_files(zr_home: &Path, author: &str, name: &str, files: &[PathBuf]) -> Plugin {
+    pub fn from_file(zr_home: &Path, author: &str, name: &str, file: PathBuf) -> Plugin {
         let path = zr_home.join("plugins").join(&author).join(&name);
         let _ = Plugin::clone_if_empty(&path, author, name);
-
-        let mapped = files.iter().cloned().map(|file| path.join(&file)).collect();
+        let mut files = HashSet::new();
+        files.insert(path.join(file));
 
         Plugin {
             author: author.to_string(),
             name: name.to_string(),
-            files: mapped,
+            files
         }
     }
 }
