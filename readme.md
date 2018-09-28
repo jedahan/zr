@@ -50,8 +50,6 @@ If you'd like a different directory for `~/.zr`, just set `ZR_HOME`
 
 The following benchmark.zsh takes 217ms total, with 28ms spent in `zr load` for my 2012 13" retina macbook pro.
 
-See [the wiki](https://github.com/jedahan/zr/wiki) for more details.
-
 ```zsh
 # install hyperfine for benchmarking
 cargo install hyperfine
