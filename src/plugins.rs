@@ -72,20 +72,28 @@ impl Plugins {
         let author = fileiter.next().unwrap().to_string();
         let name = fileiter.next().unwrap().to_string();
         let file = fileiter.collect::<Vec<_>>().join("/");
-        let filepath = self.home.join("plugins").join(&author).join(&name).join(&file);
+        let filepath = self
+            .home
+            .join("plugins")
+            .join(&author)
+            .join(&name)
+            .join(&file);
 
-        if let Some(plugin) = self.plugins.iter_mut()
-          .find(|plugin| (&plugin.name, &plugin.author) == (&name, &author)) {
-          if file != "" {
-            plugin.files.insert(filepath);
-          }
-          return Ok(())
+        if let Some(plugin) = self
+            .plugins
+            .iter_mut()
+            .find(|plugin| (&plugin.name, &plugin.author) == (&name, &author))
+        {
+            if file != "" {
+                plugin.files.insert(filepath);
+            }
+            return Ok(());
         };
 
         let plugin = if file != "" {
-          Plugin::from_file(&self.home, &author, &name, filepath)
+            Plugin::from_file(&self.home, &author, &name, filepath)
         } else {
-          Plugin::new(&self.home, &author.to_string(), &name)?
+            Plugin::new(&self.home, &author.to_string(), &name)?
         };
 
         self.plugins.push(plugin);

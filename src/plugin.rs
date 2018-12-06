@@ -6,7 +6,7 @@ use std::{fmt, fs, result};
 
 use crate::error::Error;
 
-crate struct Plugin {
+pub struct Plugin {
     pub author: String,
     pub name: String,
     pub files: HashSet<PathBuf>,
@@ -91,7 +91,7 @@ impl Plugin {
         Plugin {
             author: author.to_string(),
             name: name.to_string(),
-            files
+            files,
         }
     }
 }
