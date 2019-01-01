@@ -1,3 +1,19 @@
+# 0.7.0
+
+We finally have support for arbitrary git sources!
+It is recommended to delete your `ZR_HOME` directory.
+
+If you are cloning from non-github repo, and specifying the plugin path, you must have `.git` as a separator so `zr` knows what part of the path points to the git repo, and what points to the file.
+See the readme for examples.
+
++ added --home, -h config flag to specify home
++ added non-github repository support
+
+    zr supports https://whatever.com/some/repo[.git/path/to/files.zsh]
+
+- Breaking change: plugins are cloned into top-level `ZR_HOME` (no author/name subdirectories)
+- Breaking change: `zr list` now shows full identifier for sources (no author/name shortname)
+
 # 0.6.6
 
 + Update to rust 2018

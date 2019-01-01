@@ -4,6 +4,7 @@ use std::path::PathBuf;
 use std::{env, fmt, fs};
 
 use crate::error::Error;
+use crate::identifier::Identifier;
 use crate::plugin::Plugin;
 
 pub struct Plugins {
@@ -14,18 +15,14 @@ pub struct Plugins {
 impl Plugins {
     pub fn update(&self) -> Result<(), Error> {
         for plugin in &self.plugins {
-            let plugin_home = self
-                .home
-                .join("plugins")
-                .join(&plugin.author)
-                .join(&plugin.name);
+            let plugin_home = self.home.join(&plugin.identifier.name());
             let repo = git2::Repository::open(&plugin_home).map_err(Error::Git)?;
             let mut remote = repo.find_remote("origin").map_err(Error::Git)?;
             let mut callbacks = git2::RemoteCallbacks::new();
             callbacks.update_tips(|refspec, from, to| {
                 println!(
-                    "updated {} {}/{} from {:.6}..{:.6}",
-                    refspec, &plugin.author, &plugin.name, from, to
+                    "updated {} {} from {:.6}..{:.6}",
+                    refspec, &plugin.identifier, from, to
                 );
                 true
             });
@@ -55,46 +52,29 @@ impl Plugins {
 
     pub fn list(&self) -> Result<(), Error> {
         for plugin in &self.plugins {
-            println!("{}/{}", plugin.author, plugin.name)
+            println!("{}", plugin.identifier)
         }
         Ok(())
     }
 
-    pub fn add(&mut self, filename: &str) -> Result<(), Error> {
-        if filename.split('/').count() < 2 {
-            return Err(Error::InvalidPluginName {
-                plugin_name: filename.to_string(),
-            });
-        }
-
-        let mut fileiter = filename.split('/');
-
-        let author = fileiter.next().unwrap().to_string();
-        let name = fileiter.next().unwrap().to_string();
-        let file = fileiter.collect::<Vec<_>>().join("/");
-        let filepath = self
-            .home
-            .join("plugins")
-            .join(&author)
-            .join(&name)
-            .join(&file);
-
+    // Checks to see if a plugin has already been loaded
+    // If it has been loaded, add the current file to the plugin
+    // Else add a new plugin from scratch
+    pub fn add(&mut self, identifier: Identifier) -> Result<(), Error> {
         if let Some(plugin) = self
             .plugins
             .iter_mut()
-            .find(|plugin| (&plugin.name, &plugin.author) == (&name, &author))
+            .find(|plugin| &plugin.identifier == &identifier)
         {
-            if file != "" {
-                plugin.files.insert(filepath);
+            if let Ok(filepath) = identifier.filepath() {
+                if filepath.iter().count() > 0 {
+                    plugin.files.insert(self.home.join(filepath));
+                }
             }
             return Ok(());
         };
 
-        let plugin = if file != "" {
-            Plugin::from_file(&self.home, &author, &name, filepath)
-        } else {
-            Plugin::new(&self.home, &author.to_string(), &name)?
-        };
+        let plugin = Plugin::new(&self.home, identifier)?;
 
         self.plugins.push(plugin);
         Ok(())

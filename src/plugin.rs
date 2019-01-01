@@ -5,39 +5,44 @@ use std::path::{Path, PathBuf};
 use std::{fmt, fs, result};
 
 use crate::error::Error;
+use crate::identifier::Identifier;
 
 pub struct Plugin {
-    pub author: String,
-    pub name: String,
+    pub identifier: Identifier,
     pub files: HashSet<PathBuf>,
 }
 
 /// A Plugin is an in-memory representation of
 /// the author, name, and files to load
 impl Plugin {
-    fn clone_if_empty(path: &Path, author: &str, name: &str) -> Result<(), Error> {
+    fn clone_if_empty(source: &str, path: &Path) -> Result<(), Error> {
         if !path.is_dir() {
-            let parent = path.parent().unwrap();
-            if !parent.exists() {
-                fs::create_dir(parent).map_err(Error::Io)?;
-            }
-
-            let url = format!("https://github.com/{}/{}", author, name);
-            println!("cloning {}", url);
-            git2::Repository::clone(&url, &path).unwrap();
+            println!("cloning {} into {:?}", source, path);
+            git2::Repository::clone(&source, &path).unwrap();
         }
         Ok(())
     }
 
-    pub fn new(zr_home: &Path, author: &str, name: &str) -> Result<Plugin, Error> {
+    pub fn new(zr_home: &Path, identifier: Identifier) -> Result<Plugin, Error> {
         let plugin_home = zr_home.join("plugins");
         if !plugin_home.exists() {
             fs::create_dir_all(&plugin_home)
                 .unwrap_or_else(|_| panic!("error creating plugin dir '{:?}'", &plugin_home));
         }
-        let path = zr_home.join("plugins").join(&author).join(&name);
+        let repository = identifier.repository();
+        let name = identifier.name();
+        let path = zr_home.join(&name);
 
-        Plugin::clone_if_empty(&path, author, name)?;
+        Plugin::clone_if_empty(&repository, &path)?;
+
+        if let Ok(filepath) = identifier.filepath() {
+            if filepath.iter().count() > 0 {
+                return Ok(Plugin {
+                    identifier,
+                    files: [path.join(filepath)].iter().cloned().collect(),
+                })
+            }
+        };
 
         let files: Vec<PathBuf> = path
             .read_dir()
@@ -76,30 +81,25 @@ impl Plugin {
         };
 
         Ok(Plugin {
-            author: author.to_string(),
-            name: name.to_string(),
+            identifier,
             files: HashSet::from_iter(sources),
         })
     }
 
-    pub fn from_file(zr_home: &Path, author: &str, name: &str, file: PathBuf) -> Plugin {
-        let path = zr_home.join("plugins").join(&author).join(&name);
-        let _ = Plugin::clone_if_empty(&path, author, name);
+    pub fn from_file(zr_home: &Path, identifier: Identifier, file: PathBuf) -> Plugin {
+        let path = zr_home.join(identifier.name());
+        let _ = Plugin::clone_if_empty(&identifier.source(), &path);
         let mut files = HashSet::new();
         files.insert(path.join(file));
 
-        Plugin {
-            author: author.to_string(),
-            name: name.to_string(),
-            files,
-        }
+        Plugin { identifier, files }
     }
 }
 
 impl fmt::Display for Plugin {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         let mut basedirs = HashSet::new();
-        writeln!(formatter, "# {}/{}", self.author, self.name)?;
+        writeln!(formatter, "# {}", self.identifier.source())?;
         for file in &self.files {
             if let Some(basedir) = file.parent() {
                 basedirs.insert(basedir);

@@ -7,22 +7,26 @@
 
 Quick, simple zsh plugin manager
 
-    zr 0.6.7
+    zr 0.7.0
     Jonathan Dahan <hi@jonathan.is>
     z:rat: - zsh plugin manager
 
     USAGE:
-        zr [SUBCOMMAND]
+        zr [OPTIONS] [SUBCOMMAND]
 
     FLAGS:
-        -h, --help       Prints help information
+            --help       Prints help information
         -V, --version    Prints version information
+
+    OPTIONS:
+        -h, --home <home>    Sets a custom directory for plugins
 
     SUBCOMMANDS:
         help      Prints this message or the help of the given subcommand(s)
         list      list plugins
-        load      generate init file from plugin list
+        load      load plugins fresh
         update    update plugins
+
 
 #### install
 
@@ -46,9 +50,19 @@ source ~/.zr/init.zsh
 
 If you'd like a different directory for `~/.zr`, just set `ZR_HOME`
 
+#### identifiers
+
+zr supports four identifier formats
+
+- `author/name` # loads *.zsh from https://github.com/{author}/{name}
+- `author/name/file.zsh` # loads **file.zsh** from github url
+
+- `https://gitlab.com/some/plugin` # loads *.zsh from url
+- `https://gitlab.com/some/plugin.git/file.zsh` # loads **file.zsh** from url. The `.git` is used as a delimeter, and is required
+
 #### speed
 
-The following benchmark.zsh takes 217ms total, with 28ms spent in `zr load` for my 2012 13" retina macbook pro.
+The following benchmark.zsh takes 171ms total, with 26ms spent in `zr load` for my 2012 13" retina macbook pro.
 
 ```zsh
 # install hyperfine for benchmarking
@@ -56,11 +70,11 @@ cargo install hyperfine
 
 # benchmark zr init time
 hyperfine --warmup 3 'zsh -d -f -l -c "source benchmark.zsh && zrinit && exit"' | grep Time
-Time (mean ± σ):      28.3 ms ±   3.9 ms
+Time (mean ± σ):      26.0 ms ±   1.6 ms
 
 # benchmark total zsh load time
 hyperfine --warmup 3 'zsh -d -f -l -c "source benchmark.zsh && zrinit && source ~/.zr/init.zsh && exit"' | grep Time
-Time (mean ± σ):     217.1 ms ±  13.2 ms
+Time (mean ± σ):     171.6 ms ±  4.4 ms
 ```
 
 ```zsh
