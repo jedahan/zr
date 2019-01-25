@@ -87,7 +87,7 @@ impl Plugin {
                     files
                         .iter()
                         .cloned()
-                        .filter(|file| file.extension().unwrap() == "sh")
+                        .filter(|file| file.extension() == Some(OsStr::new("sh")))
                         .collect()
                 } else {
                     zsh_plugin_files
