@@ -52,13 +52,14 @@ If you'd like a different directory for `~/.zr`, just set `ZR_HOME`
 
 #### identifiers
 
-zr supports four identifier formats
+zr supports four identifier formats, note that the last format requires `.git` as a delimeter.
 
-- `author/name` # loads *.zsh from https://github.com/{author}/{name}
-- `author/name/file.zsh` # loads **file.zsh** from github url
-
-- `https://gitlab.com/some/plugin` # loads *.zsh from url
-- `https://gitlab.com/some/plugin.git/file.zsh` # loads **file.zsh** from url. The `.git` is used as a delimeter, and is required
+format                                              | resolves to
+----------------------------------------------------|-----------
+`author/name`                                       | __*.zsh__ from https://github.com/{author}/{name}
+`author/name/file.zsh`                              | __file.zsh__ from https://github.com/{author}/{name}
+`https://gitlab.com/some/plugin`                    | __*.zsh__ from https://gitlab.com/some/plugin
+`https://gitlab.com/some/plugin.git/file.zsh`       | __file.zsh__ from https://gitlab.com/some/plugin.git. The `.git` is used as a delimeter, and is required.
 
 #### speed
 
