@@ -2,6 +2,7 @@
 
 + Added some documentation which can be seen with `cargo doc -p zr --open`.
 * Removed extraneous `plugins` directory
+* Bumped minor version of libc crate
 
 # 0.7.0
 
