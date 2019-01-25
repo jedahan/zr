@@ -7,6 +7,7 @@ use crate::error::Error;
 use crate::identifier::Identifier;
 use crate::plugin::Plugin;
 
+/// Plugins are collected into different `home`s
 pub struct Plugins {
     home: PathBuf,
     plugins: Vec<Plugin>,
@@ -80,6 +81,7 @@ impl Plugins {
         Ok(())
     }
 
+    // Serialize all the plugins to $ZR_HOME/init.zsh
     pub fn save(&self) -> Result<(), Error> {
         let filename = "init.zsh";
         let temp_file_path = env::temp_dir().join(filename);

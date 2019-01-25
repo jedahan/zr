@@ -1,5 +1,6 @@
 # 0.7.1
 
++ Added some documentation which can be seen with `cargo doc -p zr --open`.
 * Removed extraneous `plugins` directory
 
 # 0.7.0

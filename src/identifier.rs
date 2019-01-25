@@ -28,7 +28,9 @@ impl From<String> for Identifier {
     }
 }
 
+/// An Identifier is just a url::Url with some nice helper methods
 impl Identifier {
+    /// Where should the files be stored?
     pub fn filepath(&self) -> Result<PathBuf, String> {
         let url = &self.0;
         let segments: Split<char> = url.path_segments().ok_or_else(|| "no path")?;
@@ -41,6 +43,7 @@ impl Identifier {
         Ok(PathBuf::new())
     }
 
+    /// Get the original Identifier string
     pub fn source(&self) -> String {
         self.0.to_string()
     }
@@ -59,6 +62,7 @@ impl Identifier {
         segments.take(path_index)
     }
 
+    /// Get the full repository path from an Identifier
     pub fn repository(&self) -> String {
         let segments = self.segments();
         let repository_path: Vec<String> = segments.map(String::from).collect();
@@ -68,6 +72,7 @@ impl Identifier {
         url.to_string()
     }
 
+    /// What is the name of the plugin
     pub fn name(&self) -> String {
         self.segments()
             .last()
