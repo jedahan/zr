@@ -7,7 +7,7 @@
 
 Quick, simple zsh plugin manager
 
-    zr 0.7.0
+    zr 0.7.1
     Jonathan Dahan <hi@jonathan.is>
     z:rat: - zsh plugin manager
 
