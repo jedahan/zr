@@ -1,3 +1,7 @@
+# 0.7.1
+
+* Removed extraneous `plugins` directory
+
 # 0.7.0
 
 We finally have support for arbitrary git sources!

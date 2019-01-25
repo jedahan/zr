@@ -24,10 +24,9 @@ impl Plugin {
     }
 
     pub fn new(zr_home: &Path, identifier: Identifier) -> Result<Plugin, Error> {
-        let plugin_home = zr_home.join("plugins");
-        if !plugin_home.exists() {
-            fs::create_dir_all(&plugin_home)
-                .unwrap_or_else(|_| panic!("error creating plugin dir '{:?}'", &plugin_home));
+        if !zr_home.exists() {
+            fs::create_dir_all(zr_home)
+                .unwrap_or_else(|_| panic!("error creating plugin dir '{:?}'", &zr_home));
         }
         let repository = identifier.repository();
         let name = identifier.name();
