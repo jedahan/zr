@@ -1,3 +1,7 @@
+# 0.7.2
+
+* Bumped patch version of deps
+
 # 0.7.1
 
 + Added some documentation which can be seen with `cargo doc -p zr --open`.
