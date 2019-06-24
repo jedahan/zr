@@ -41,7 +41,7 @@ fn main() -> Result<(), Error> {
         (version: crate_version!())
         (author: "Jonathan Dahan <hi@jonathan.is>")
         (about: "z:rat: - zsh plugin manager")
-        (@arg home: -h --home +takes_value "Sets a custom directory for plugins")
+        (@arg home: --home +takes_value "Sets a custom directory for plugins")
         (@subcommand list => (about: "list plugins") )
         (@subcommand load => (about: "generate init.zsh from list of [http://example.com/]plugin/name[.git/path/to/file.zsh]")
             (@arg plugins: +required +multiple +takes_value "[http://example.com/]plugin/name[.git/path/to/file.zsh]")
