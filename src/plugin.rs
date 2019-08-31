@@ -6,6 +6,8 @@ use std::{fmt, fs, result};
 
 use crate::error::Error;
 use crate::identifier::Identifier;
+//#[cfg(!windows)]
+use std::os::unix::fs::PermissionsExt;
 
 /// A Plugin is an in-memory representation of the identifier and files to load
 pub struct Plugin {
@@ -116,10 +118,26 @@ impl fmt::Display for Plugin {
             }
         }
 
-        for basedir in basedirs.iter().filter_map(|b| b.to_str()) {
-            let dir = basedir.replace("\\", "/");
-            writeln!(formatter, "fpath+={}/", dir)?;
-            writeln!(formatter, "PATH={}:$PATH", dir)?;
+        if cfg!(windows) {
+            for basedir in basedirs.iter() {
+                let dir = basedir.to_string_lossy().replace("\\", "/");
+                writeln!(formatter, "fpath+={}/", dir)?;
+                writeln!(formatter, "PATH={}:$PATH", dir)?;
+            }
+        } else {
+            // Add directories to fpath and PATH if we find any executable file
+            for dir in basedirs.iter() {
+                if let Ok(files) = dir.read_dir() {
+                    if files.filter_map(|files| files.ok())
+                      .filter_map(|direntry| direntry.metadata().ok())
+                      .filter(|metadata| metadata.is_file())
+                      .map(|metadata| metadata.permissions())
+                      .any(|permission| permission.mode() & 0o111 != 0) {
+                          writeln!(formatter, "fpath+={}/", dir.display())?;
+                          writeln!(formatter, "PATH={}:$PATH", dir.display())?;
+                    }
+                }
+            }
         }
 
         Ok(())

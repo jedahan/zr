@@ -1,3 +1,12 @@
+# 0.8.1
+
+* Only add a directory to PATH and fpath if there are executable files inside (non-windows specific)
+
+# 0.8.0
+
+- Removed `-h` shorthand for `--home`, now `-h` is for `--help`
+* Bumped minor version of deps
+
 # 0.7.2
 
 * Bumped patch version of deps
