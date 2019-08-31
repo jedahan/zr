@@ -1,6 +1,6 @@
 # hyperfine --warmup 3 'zsh -d -f -l -c "source $PWD/benchmark.zsh && zrinit && exit"'
 function zrinit {
-  zr load sorin-ionescu/prezto/modules/git/alias.zsh \
+  zr --home /tmp/zrbench load sorin-ionescu/prezto/modules/git/alias.zsh \
     sorin-ionescu/prezto/modules/history/init.zsh \
     junegunn/fzf/shell/key-bindings.zsh \
     zsh-users/zsh-autosuggestions \
@@ -14,5 +14,4 @@ function zrinit {
     momo-lab/zsh-abbrev-alias \
     jedahan/alacritty-completions \
     zpm-zsh/ssh
-
 }
