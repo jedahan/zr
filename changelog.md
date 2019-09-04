@@ -1,3 +1,7 @@
+# 0.8.2
+
+* We now support git ssh credentials during updates!
+
 # 0.8.1
 
 * Only add a directory to PATH and fpath if there are executable files inside (non-windows specific)

@@ -3,6 +3,8 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::{env, fmt, fs};
 
+use git2_credentials::CredentialHandler;
+
 use crate::error::Error;
 use crate::identifier::Identifier;
 use crate::plugin::Plugin;
@@ -20,6 +22,11 @@ impl Plugins {
             let repo = git2::Repository::open(&plugin_home).map_err(Error::Git)?;
             let mut remote = repo.find_remote("origin").map_err(Error::Git)?;
             let mut callbacks = git2::RemoteCallbacks::new();
+
+            let git_config = git2::Config::open_default().unwrap();
+            let mut ch = CredentialHandler::new(git_config);
+            callbacks.credentials(move |url, username, allowed| ch.try_next_credential(url, username, allowed));
+
             callbacks.update_tips(|refspec, from, to| {
                 println!(
                     "updated {} {} from {:.6}..{:.6}",
