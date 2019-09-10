@@ -1,0 +1,35 @@
+name: Rust
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build
+      run: cargo build --verbose
+    - name: Test
+      run: cargo test --verbose
+    - name: Size
+      run: |
+        cargo install cargo-bloat
+        cargo bloat --release --crates
+    - name: Geiger
+      run: |
+        cargo install cargo-geiger
+        cargo geiger
+    - name: Audit
+      run: |
+        cargo install cargo-audit
+        cargo audit
+    - name: Count
+      run: |
+        cargo install tokei
+        tokei
+    - name: Nono
+      run: |
+        cargo install cargo-nono
+        cargo nono check
