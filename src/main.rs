@@ -54,7 +54,7 @@ fn print_help() {
   zr help     show help
   zr list     list cached plugins
   zr update   update plugin repositories
-  zr load     generate file to source from  [http://example.com/]plugin/name[.git/path/to/file.zsh]", version="0.7.1")
+  zr load     generate file to source from  [http://example.com/]plugin/name[.git/path/to/file.zsh]", version="0.9.0")
 }
 
 /// Create plugins from an existing `load` output

@@ -1,6 +1,6 @@
 [package]
 name = "zr"
-version = "0.8.2"
+version = "0.9.0"
 authors = ["Jonathan Dahan <hi@jonathan.is>"]
 description = "quick, simple zsh package manager"
 readme = "readme.md"

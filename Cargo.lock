@@ -619,7 +619,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "zr"
-version = "0.8.2"
+version = "0.9.0"
 dependencies = [
  "git2 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "git2_credentials 0.3.3-dev (git+https://github.com/davidB/git2_credentials)",
