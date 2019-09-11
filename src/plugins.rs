@@ -1,7 +1,6 @@
-use std::fs::OpenOptions;
-use std::io::{Error, Write};
+use std::io::Error;
 use std::path::PathBuf;
-use std::{env, fmt, fs};
+use std::{fmt, fs};
 
 use git2_credentials::CredentialHandler;
 
@@ -92,27 +91,11 @@ impl Plugins {
 
     // Serialize all the plugins to $ZR_HOME/init.zsh
     pub fn save(&self) -> Result<(), Error> {
-        let filename = "init.zsh";
-        let temp_file_path = env::temp_dir().join(filename);
-        let mut temp_file = OpenOptions::new()
-            .write(true)
-            .create(true)
-            .truncate(true)
-            .open(&temp_file_path)
-            .expect("temp file");
-
         for plugin in &self.plugins {
-            writeln!(temp_file, "{}", plugin).expect("Should be able to write to temp_file");
+            println!("{}", plugin);
         }
-        writeln!(
-            temp_file,
-            "autoload -Uz compinit; compinit -iCd $HOME/.zcompdump"
-        )
-        .expect("Should be able to write the autoload line");
+        println!("autoload -Uz compinit; compinit -iCd $HOME/.zcompdump");
 
-        let dst_file_path = &self.home.join(filename);
-        fs::copy(&temp_file_path, &dst_file_path).expect("Should be able to copy to dst_file");
-        fs::remove_file(&temp_file_path).expect("Should be able to remove temp_file");
         Ok(())
     }
 }

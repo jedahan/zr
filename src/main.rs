@@ -39,7 +39,7 @@ fn main() -> Result<()> {
         return match subcommand.as_str() {
             "list" => plugins_from(&path).list(),
             "update" => plugins_from(&path).update(),
-            "load" => load_plugins(&path, env::args().skip(1).collect()),
+            "load" => load_plugins(&path, env::args().skip(2).collect()),
             _ => Ok(print_help()),
         };
     }
@@ -66,7 +66,7 @@ pub fn plugins_from(config: &PathBuf) -> Plugins {
 
     let mut buffer = String::new();
     if let Ok(_) = io::stdin().read_to_string(&mut buffer) {
-        buffer
+        let _ = buffer
             .lines()
             .filter(|line| line.starts_with("# "))
             .map(|line| String::from(line.split_whitespace().last().unwrap()))

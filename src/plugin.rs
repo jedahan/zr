@@ -18,7 +18,7 @@ impl Plugin {
     /// Simple git clone; does not support ssh authentication yet
     fn clone_if_empty(source: &str, path: &Path) -> Result<(), std::io::Error> {
         if !path.is_dir() {
-            println!("cloning {} into {:?}", source, path);
+            eprintln!("cloning {} into {:?}", source, path);
             git2::Repository::clone(&source, &path).unwrap();
         }
         Ok(())
