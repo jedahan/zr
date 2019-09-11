@@ -26,7 +26,7 @@ use crate::plugins::Plugins;
 /// `list`: list plugins in the cache
 ///
 fn main() {
-    let path = cache_dir().unwrap();
+    let path = cache_dir().unwrap().join("zr");
 
     if let Some(subcommand) = env::args().nth(1) {
         match subcommand.as_str() {
