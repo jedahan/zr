@@ -7,26 +7,11 @@
 
 Quick, simple zsh plugin manager
 
-    zr 0.7.1
-    Jonathan Dahan <hi@jonathan.is>
-    z:rat: - zsh plugin manager
+    zr 0.9.0
+    by Jonathan Dahan <hi@jonathan.is>
 
-    USAGE:
-        zr [OPTIONS] [SUBCOMMAND]
-
-    FLAGS:
-            --help       Prints help information
-        -V, --version    Prints version information
-
-    OPTIONS:
-        -h, --home <home>    Sets a custom directory for plugins
-
-    SUBCOMMANDS:
-        help      Prints this message or the help of the given subcommand(s)
-        list      list plugins
-        load      load plugins fresh
-        update    update plugins
-
+    zr [[http://example.com]plugin/name[.git/path/to/file.zsh]]    fetch or update plugins and output sourceable zsh
+    zr help     show help
 
 #### install
 
@@ -38,17 +23,16 @@ Add this to your *~/.zshrc*:
 
 ```zsh
 # Generate new ~/.zr/init.zsh if it does not exist or ~/.zshrc is newer
-if [[ ! -f ~/.zr/init.zsh ]] || [[ ~/.zshrc -nt ~/.zr/init.zsh ]]; then
+if [[ ! -f ~/.config/zr.zsh ]] || [[ ~/.zshrc -nt ~/.config/zr.zsh ]]; then
   zr load \
     frmendes/geometry \
     jedahan/geometry-hydrate \
-    junegunn/fzf/shell/key-bindings.zsh  # just load key-bindings.zsh
+    junegunn/fzf/shell/key-bindings.zsh \
+    > ~/.config/zr.zsh
 fi
 
-source ~/.zr/init.zsh
+source ~/.config/zr.zsh
 ```
-
-If you'd like a different directory for `~/.zr`, just set `ZR_HOME`
 
 #### identifiers
 
