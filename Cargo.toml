@@ -13,8 +13,7 @@ edition = "2018"
 travis-ci = { repository = "jedahan/zr" }
 
 [dependencies]
-git2 = "0.10.0"
+git2 = "0.10.1"
 dirs = "2.0.2"
-libc = "0.2.62"
 url = "2.1.0"
-git2_credentials = { git = "https://github.com/davidB/git2_credentials" }
+git2_credentials = "0.3.2"
