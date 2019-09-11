@@ -1,6 +1,7 @@
 use std::io::Error;
 use std::path::PathBuf;
-use std::{fmt, fs};
+use std::fmt;
+use std::fs::create_dir_all;
 
 use git2_credentials::CredentialHandler;
 
@@ -36,6 +37,7 @@ impl Plugins {
             });
             let mut options = git2::FetchOptions::new();
             options.remote_callbacks(callbacks);
+            // TODO: remove hardcoding of master
             remote
                 .fetch(
                     &["refs/heads/master:refs/heads/master"],
@@ -47,13 +49,13 @@ impl Plugins {
         Ok(())
     }
 
-    pub fn new(zr_home: &PathBuf) -> Plugins {
-        if !zr_home.exists() {
-            fs::create_dir_all(&zr_home)
-                .unwrap_or_else(|_| panic!("error creating zr_home dir '{:?}'", &zr_home));
+    pub fn new(cache: &PathBuf) -> Plugins {
+        if ! cache.exists() {
+            create_dir_all(&cache)
+                .unwrap_or_else(|_| panic!("error creating cache directory '{:?}'", &cache));
         }
         Plugins {
-            home: zr_home.clone(),
+            home: cache.clone(),
             plugins: vec![],
         }
     }

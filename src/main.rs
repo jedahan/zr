@@ -8,6 +8,7 @@
 use std::env;
 use std::io::{self, Read, Result};
 use std::path::PathBuf;
+use dirs::cache_dir;
 
 pub mod identifier;
 pub mod plugin;
@@ -15,14 +16,6 @@ pub mod plugins;
 
 use crate::identifier::Identifier;
 use crate::plugins::Plugins;
-
-fn cache() -> PathBuf {
-    fn default_cache_home(_: env::VarError) -> String {
-        format!("{}/.cache", env::var("HOME").unwrap())
-    }
-
-    PathBuf::from(env::var("XDG_CACHE_HOME").unwrap_or_else(default_cache_home)).join("zr")
-}
 
 /// We have three main commands
 ///
@@ -33,7 +26,7 @@ fn cache() -> PathBuf {
 /// `list`: list plugins in the cache
 ///
 fn main() -> Result<()> {
-    let path = cache();
+    let path = cache_dir().unwrap();
 
     if let Some(subcommand) = env::args().nth(1) {
         return match subcommand.as_str() {
