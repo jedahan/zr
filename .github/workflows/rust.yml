@@ -9,27 +9,24 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Build
+    - name: build
       run: cargo build --verbose
-    - name: Test
+    - name: test
       run: cargo test --verbose
-    - name: Size
+    - name: extend
       run: |
         cargo install cargo-bloat
-        cargo bloat --release --crates
-    - name: Geiger
-      run: |
         cargo install cargo-geiger
-        cargo geiger
-    - name: Audit
-      run: |
         cargo install cargo-audit
-        cargo audit
-    - name: Count
-      run: |
         cargo install tokei
-        tokei
-    - name: Nono
-      run: |
-        cargo install cargo-nono
-        cargo nono check
+    - name: size
+      run: cargo bloat --release --crates
+
+    - name: geiger
+      run: cargo geiger
+
+    - name: audit
+      run: cargo audit
+
+    - name: count
+      run: tokei
