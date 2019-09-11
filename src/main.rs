@@ -5,98 +5,69 @@
 //!   * downloads the code from those repos
 //!   * and generates an init.zsh to setup paths and load zsh scripts for your zshrc
 //!
-use clap::{clap_app, crate_version};
-use std::fs::OpenOptions;
-use std::io::{BufRead, BufReader};
+use std::env;
+use std::io::{self, Read, Result};
 use std::path::PathBuf;
 
-pub mod error;
 pub mod identifier;
 pub mod plugin;
 pub mod plugins;
 
-use crate::error::Error;
 use crate::identifier::Identifier;
 use crate::plugins::Plugins;
 
-/// You can change the directory zr stores repositories and init.zsh by setting ZR_HOME
-/// ZR_HOME defaults to $HOME/.zr
-fn zr_home() -> Result<String, Error> {
-    let zr_home = get_var("ZR_HOME")?;
-    let home = get_var("HOME")?;
-    let default_home = format!("{}/.zr", home.unwrap());
-    Ok(zr_home.unwrap_or(default_home))
+fn cache() -> PathBuf {
+    fn default_cache_home(_: env::VarError) -> String {
+        format!("{}/.cache", env::var("HOME").unwrap())
+    }
+
+    PathBuf::from(env::var("XDG_CACHE_HOME").unwrap_or_else(default_cache_home)).join("zr")
 }
 
 /// We have three main commands
 ///
-/// `load`: download and generate an `init.zsh` with the scripts found from the geometry-zsh/geometry repo
+/// `load`: download and print sourceable zsh to load scripts
 ///
-/// `update`: take `init.zsh` and git pull on all the repositories found there
+/// `update`: git pull all repositories found in the cache
 ///
-/// `list`: list plugins from `init.zsh`
+/// `list`: list plugins in the cache
 ///
-fn main() -> Result<(), Error> {
-    let mut zr = clap_app!(zr =>
-        (version: crate_version!())
-        (author: "Jonathan Dahan <hi@jonathan.is>")
-        (about: "z:rat: - zsh plugin manager")
-        (@arg home: --home +takes_value "Sets a custom directory for plugins")
-        (@subcommand list => (about: "list plugins") )
-        (@subcommand load => (about: "generate init.zsh from list of [http://example.com/]plugin/name[.git/path/to/file.zsh]")
-            (@arg plugins: +required +multiple +takes_value "[http://example.com/]plugin/name[.git/path/to/file.zsh]")
-        )
-        (@subcommand update => (about: "update plugins") )
-    );
+fn main() -> Result<()> {
+    let path = cache();
 
-    let matches = zr.clone().get_matches();
-    let path = PathBuf::from(
-        matches
-            .value_of("home")
-            .map(String::from)
-            .unwrap_or_else(|| zr_home().unwrap()),
-    );
-
-    match matches.subcommand() {
-        ("list", _) => plugins_from(&path).list(),
-        ("update", _) => plugins_from(&path).update(),
-        ("load", Some(m)) => load_plugins(&path, &m.values_of_lossy("plugins").unwrap()),
-        (_, _) => zr.print_help().map_err(Error::Clap),
+    if let Some(subcommand) = env::args().nth(1) {
+        return match subcommand.as_str() {
+            "list" => plugins_from(&path).list(),
+            "update" => plugins_from(&path).update(),
+            "load" => load_plugins(&path, env::args().skip(1).collect()),
+            _ => Ok(print_help()),
+        };
     }
+    Ok(())
 }
 
-/// Wrapper for dealing with expected and unexpected errors when grabbing environment variables
-/// Its okay if some variables are not set
-fn get_var(key: &str) -> Result<Option<String>, Error> {
-    use std::env::VarError::{NotPresent, NotUnicode};
+fn print_help() {
+    println!("
+  zr {version}
+  by Jonathan Dahan <hi@jonathan.is>
 
-    match std::env::var(key) {
-        Ok(value) => Ok(Some(value)),
-        Err(NotPresent) => Ok(None),
-        Err(NotUnicode(value)) => Err(Error::EnvironmentVariableNotUnicode {
-            key: key.to_string(),
-            value,
-        }),
-    }
+  zr help     show help
+  zr list     list cached plugins
+  zr update   update plugin repositories
+  zr load     generate file to source from  [http://example.com/]plugin/name[.git/path/to/file.zsh]", version="0.7.1")
 }
 
-/// Turn an `init.zsh` file into a bunch of plugins
+/// Create plugins from an existing `load` output
 ///
-/// When we save plugins to init.zsh, the original identifier is
-/// simple stored as # { identifier }.
+/// When we print plugins, the original identifier is stored as # { identifier }
 ///
-/// We do not lock git checkouts so its possible that deserialization
-/// results in changes to init.zsh if the repo updated.
-///
-/// TODO: maybe this should be `impl From<PathBuf> for Plugins`
-pub fn plugins_from(zr_home: &PathBuf) -> Plugins {
-    let mut plugins = Plugins::new(zr_home);
-    let zr_init = &zr_home.join("init.zsh");
+pub fn plugins_from(config: &PathBuf) -> Plugins {
+    let mut plugins = Plugins::new(config);
 
-    if let Ok(init_file) = OpenOptions::new().read(true).open(&zr_init) {
-        let _ = BufReader::new(&init_file)
+    let mut buffer = String::new();
+    if let Ok(_) = io::stdin().read_to_string(&mut buffer) {
+        buffer
             .lines()
-            .map(|line| line.unwrap())
             .filter(|line| line.starts_with("# "))
             .map(|line| String::from(line.split_whitespace().last().unwrap()))
             .map(|uri| Identifier::from(uri))
@@ -106,9 +77,9 @@ pub fn plugins_from(zr_home: &PathBuf) -> Plugins {
     plugins
 }
 
-/// Take a list of identifiers (from cli args) and save them as an init.zsh
-pub fn load_plugins(zr_home: &PathBuf, parameters: &[String]) -> Result<(), Error> {
-    let mut plugins: Plugins = Plugins::new(zr_home);
+/// Take a list of identifiers (from cli args) and output sourceable zsh
+pub fn load_plugins(cache: &PathBuf, parameters: Vec<String>) -> Result<()> {
+    let mut plugins: Plugins = Plugins::new(cache);
 
     for param in parameters {
         plugins.add(Identifier::from(param.to_string()))?;

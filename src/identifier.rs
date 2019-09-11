@@ -15,16 +15,19 @@ impl fmt::Display for Identifier {
 }
 
 impl From<String> for Identifier {
-    fn from(s: String) -> Identifier {
-        let has_base = Url::parse(&s) != Err(ParseError::RelativeUrlWithoutBase);
+    fn from(string: String) -> Identifier {
+        let has_base = Url::parse(&string) != Err(ParseError::RelativeUrlWithoutBase);
 
         // author/name[/path/to/file.zsh] -> https://github.com/author/name[.git/path/]
         if !has_base {
-            let s = format!("https://github.com/{}", s);
-            return Identifier(Url::parse(&s).unwrap());
+            if !string.contains("/") {
+                panic!("'{}' is not a valid identifier", string)
+            }
+            let string = format!("https://github.com/{}", string);
+            return Identifier(Url::parse(&string).unwrap());
         }
 
-        Identifier(Url::parse(&s).unwrap())
+        Identifier(Url::parse(&string).unwrap())
     }
 }
 
