@@ -10,14 +10,14 @@ use crate::plugin::Plugin;
 
 /// Plugins are collected into different `home`s
 pub struct Plugins {
-    home: PathBuf,
+    cache: PathBuf,
     plugins: Vec<Plugin>,
 }
 
 impl Plugins {
     pub fn update(&self) -> Result<(), Error> {
         for plugin in &self.plugins {
-            let plugin_home = self.home.join(&plugin.identifier.name());
+            let plugin_home = self.cache.join(&plugin.identifier.name());
             let repo = git2::Repository::open(&plugin_home).unwrap();
             let mut remote = repo.find_remote("origin").unwrap();
             let mut callbacks = git2::RemoteCallbacks::new();
@@ -51,11 +51,10 @@ impl Plugins {
 
     pub fn new(cache: &PathBuf) -> Plugins {
         if ! cache.exists() {
-            create_dir_all(&cache)
-                .unwrap_or_else(|_| panic!("error creating cache directory '{:?}'", &cache));
+            create_dir_all(&cache).expect("failed to create the cache directory");
         }
         Plugins {
-            home: cache.clone(),
+            cache: cache.clone(),
             plugins: vec![],
         }
     }
@@ -74,17 +73,17 @@ impl Plugins {
         if let Some(plugin) = self
             .plugins
             .iter_mut()
-            .find(|plugin| &plugin.identifier == &identifier)
+            .find(|plugin| plugin.identifier == identifier)
         {
             if let Ok(filepath) = identifier.filepath() {
                 if filepath.iter().count() > 0 {
-                    plugin.files.insert(self.home.join(filepath));
+                    plugin.files.insert(self.cache.join(filepath));
                 }
             }
             return Ok(());
         };
 
-        if let Ok(plugin) = Plugin::new(&self.home, identifier) {
+        if let Ok(plugin) = Plugin::new(&self.cache, identifier) {
             self.plugins.push(plugin);
         }
 
@@ -104,7 +103,7 @@ impl Plugins {
 
 impl fmt::Display for Plugins {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "{}", self.home.display())?;
+        writeln!(f, "{}", self.cache.display())?;
         for plugin in &self.plugins {
             writeln!(f, "{}", plugin)?;
         }

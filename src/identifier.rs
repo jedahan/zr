@@ -20,7 +20,7 @@ impl From<String> for Identifier {
 
         // author/name[/path/to/file.zsh] -> https://github.com/author/name[.git/path/]
         if !has_base {
-            if !string.contains("/") {
+            if !string.contains('/') {
                 panic!("'{}' is not a valid identifier", string)
             }
             let string = format!("https://github.com/{}", string);

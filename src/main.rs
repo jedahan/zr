@@ -25,18 +25,17 @@ use crate::plugins::Plugins;
 ///
 /// `list`: list plugins in the cache
 ///
-fn main() -> Result<()> {
+fn main() {
     let path = cache_dir().unwrap();
 
     if let Some(subcommand) = env::args().nth(1) {
-        return match subcommand.as_str() {
-            "list" => plugins_from(&path).list(),
-            "update" => plugins_from(&path).update(),
-            "load" => load_plugins(&path, env::args().skip(2).collect()),
-            _ => Ok(print_help()),
+        match subcommand.as_str() {
+            "list" => plugins_from(&path).list().unwrap(),
+            "update" => plugins_from(&path).update().unwrap(),
+            "load" => load_plugins(&path, env::args().skip(2).collect()).unwrap(),
+            _ => print_help(),
         };
     }
-    Ok(())
 }
 
 fn print_help() {
@@ -47,7 +46,7 @@ fn print_help() {
   zr help     show help
   zr list     list cached plugins
   zr update   update plugin repositories
-  zr load     generate file to source from  [http://example.com/]plugin/name[.git/path/to/file.zsh]", version="0.9.0")
+  zr load     generate file to source from  [http://example.com/]plugin/name[.git/path/to/file.zsh]", version=env!("CARGO_PKG_VERSION"))
 }
 
 /// Create plugins from an existing `load` output
@@ -58,12 +57,12 @@ pub fn plugins_from(config: &PathBuf) -> Plugins {
     let mut plugins = Plugins::new(config);
 
     let mut buffer = String::new();
-    if let Ok(_) = io::stdin().read_to_string(&mut buffer) {
+    if io::stdin().read_to_string(&mut buffer).is_ok() {
         let _ = buffer
             .lines()
             .filter(|line| line.starts_with("# "))
             .map(|line| String::from(line.split_whitespace().last().unwrap()))
-            .map(|uri| Identifier::from(uri))
+            .map(Identifier::from)
             .try_for_each(|id| plugins.add(id));
     }
 
