@@ -17,6 +17,9 @@ pub mod plugins;
 use crate::identifier::Identifier;
 use crate::plugins::Plugins;
 
+const NAME: &str = env!("CARGO_PKG_NAME");
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 /// We have three main commands
 ///
 /// `load`: download and print sourceable zsh to load scripts
@@ -40,13 +43,13 @@ fn main() {
 
 fn print_help() {
     println!("
-  zr {version}
+  {name} {version}
   by Jonathan Dahan <hi@jonathan.is>
 
-  zr help     show help
-  zr list     list cached plugins
-  zr update   update plugin repositories
-  zr load     generate file to source from  [http://example.com/]plugin/name[.git/path/to/file.zsh]", version=env!("CARGO_PKG_VERSION"))
+  {name} help     show help
+  {name} list     list cached plugins
+  {name} update   update plugin repositories
+  {name} load     generate file to source from  [http://example.com/]plugin/name[.git/path/to/file.zsh]", version=VERSION, name=NAME)
 }
 
 /// Create plugins from an existing `load` output
