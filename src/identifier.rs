@@ -1,83 +1,41 @@
-use core::str::Split;
-use std::fmt;
-use std::iter::Take;
 use std::path::PathBuf;
 use url::{ParseError, Url};
 
-#[derive(Debug, PartialEq)]
-pub struct Identifier(url::Url);
-
-impl fmt::Display for Identifier {
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        write!(formatter, "{}", self.0)?;
-        Ok(())
-    }
+#[derive(Clone, Debug, PartialEq)]
+pub struct Identifier {
+    pub name: String,
+    pub url: Url,
+    pub dir: PathBuf,
+    pub file: Option<String>,
 }
 
-impl From<String> for Identifier {
-    fn from(s: String) -> Identifier {
-        let has_base = Url::parse(&s) != Err(ParseError::RelativeUrlWithoutBase);
-
-        // author/name[/path/to/file.zsh] -> https://github.com/author/name[.git/path/]
-        if !has_base {
-            let s = format!("https://github.com/{}", s);
-            return Identifier(Url::parse(&s).unwrap());
-        }
-
-        Identifier(Url::parse(&s).unwrap())
-    }
-}
-
-/// An Identifier is just a url::Url with some nice helper methods
 impl Identifier {
-    /// Where should the files be stored?
-    pub fn filepath(&self) -> Result<PathBuf, String> {
-        let url = &self.0;
-        let segments: Split<char> = url.path_segments().ok_or_else(|| "no path")?;
-
-        if Url::host_str(&url) == Some("github.com") {
-            let strip_author_and_name = segments.skip(2).collect::<Vec<_>>();
-            return Ok(PathBuf::from(strip_author_and_name.join("/")));
+    pub fn new(name: String) -> Self {
+        if !name.contains('/') {
+            panic!("'{}' is not a valid identifier", &name)
         }
 
-        Ok(PathBuf::new())
-    }
-
-    /// Get the original Identifier string
-    pub fn source(&self) -> String {
-        self.0.to_string()
-    }
-
-    fn segments(&self) -> Take<Split<char>> {
-        let url = &self.0;
-        let mut segments: Split<char> = url.path_segments().unwrap();
-
-        let path_index = match Url::host_str(&url) {
-            Some("github.com") => 2,
-            _ => segments
-                .position(|segment| segment.ends_with(".git"))
-                .unwrap(),
+        let uri = if name.contains(".git") {
+            format!("{}.git", name.split(".git").next().unwrap())
+        } else {
+            name.clone()
         };
 
-        segments.take(path_index)
-    }
+        let url = match Url::parse(&uri) {
+            Ok(url) => url,
+            Err(ParseError::RelativeUrlWithoutBase) => {
+                Url::parse(&format!("https://github.com/{}", &uri)).unwrap()
+            }
+            Err(e) => panic!(e),
+        };
 
-    /// Get the full repository path from an Identifier
-    pub fn repository(&self) -> String {
-        let segments = self.segments();
-        let repository_path: Vec<String> = segments.map(String::from).collect();
-
-        let mut url = self.0.clone();
-        url.set_path(&repository_path.join("/"));
-        url.to_string()
-    }
-
-    /// What is the name of the plugin
-    pub fn name(&self) -> String {
-        self.segments()
-            .last()
-            .unwrap()
-            .trim_end_matches(".git")
-            .to_string()
+        let file = name.split(".git/").nth(2).map(String::from);
+        let dir = PathBuf::from(url.path_segments().unwrap().collect::<Vec<_>>().join("/"));
+        Identifier {
+            name,
+            url,
+            dir,
+            file,
+        }
     }
 }

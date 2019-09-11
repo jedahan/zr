@@ -1,3 +1,10 @@
+# 0.9.0
+
+* Breaking changes - we no longer handle a file, just write to stdout
+* Deprecated `load`, `update`, and `list`
+* Removed clap dependency, stripped binary down from 4.9Mb to 1.8Mb
+* We use XDG_CACHE_DIR/zr or $HOME/.cache/zr for caching plugins
+
 # 0.8.2
 
 * We now support git ssh credentials during updates!
