@@ -17,3 +17,8 @@ git2 = "0.10.1"
 dirs = "2.0.2"
 url = "2.1.0"
 git2_credentials = "0.3.2"
+
+[profile.release]
+lto = true
+codegen-units = 1
+incremental = false
