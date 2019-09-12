@@ -5,10 +5,10 @@
 //!   * downloads the code from those repos
 //!   * and generates an init.zsh to setup paths and load zsh scripts for your zshrc
 //!
+use dirs::cache_dir;
 use std::env;
 use std::io::{self, Read, Result};
 use std::path::PathBuf;
-use dirs::cache_dir;
 
 pub mod identifier;
 pub mod plugin;

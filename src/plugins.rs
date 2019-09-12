@@ -1,7 +1,7 @@
-use std::io::Error;
-use std::path::PathBuf;
 use std::fmt;
 use std::fs::create_dir_all;
+use std::io::Error;
+use std::path::PathBuf;
 
 use git2_credentials::CredentialHandler;
 
@@ -50,7 +50,7 @@ impl Plugins {
     }
 
     pub fn new(cache: &PathBuf) -> Plugins {
-        if ! cache.exists() {
+        if !cache.exists() {
             create_dir_all(&cache).expect("failed to create the cache directory");
         }
         Plugins {
