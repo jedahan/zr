@@ -49,7 +49,7 @@ impl Plugin {
                 return Ok(Plugin {
                     identifier,
                     files: [path.join(filepath)].iter().cloned().collect(),
-                })
+                });
             }
         };
 
@@ -59,7 +59,7 @@ impl Plugin {
             .unwrap()
             .filter_map(result::Result::ok)
             .map(|file| file.path())
-            .filter(|file| file.is_file() && file.extension().is_some())
+            .filter(|file| file.is_file())
             .collect();
 
         // We try and find the main file by looking for the first of
@@ -68,6 +68,7 @@ impl Plugin {
         // * {author}/{name}/{name.plugin.zsh} (antigen style)
         // * {author}/{name}/init.zsh (prezto style)
         // * {author}/{name}/*zsh (zsh style)
+        // * {author}/{name}/_* (completions)
         // * {author}/{name}/*sh (shell style)
         let sources: Vec<PathBuf> = {
             if let Some(antigen_plugin_file) = files
@@ -85,14 +86,29 @@ impl Plugin {
                     .cloned()
                     .filter(|file| file.extension() == Some(OsStr::new("zsh")))
                     .collect();
-                if zsh_plugin_files.is_empty() {
-                    files
+                if !zsh_plugin_files.is_empty() {
+                    zsh_plugin_files
+                } else {
+                    let completion_files: Vec<_> = files
                         .iter()
                         .cloned()
-                        .filter(|file| file.extension() == Some(OsStr::new("sh")))
-                        .collect()
-                } else {
-                    zsh_plugin_files
+                        .filter(|file| {
+                            if let Some(name) = file.file_name() {
+                                name.to_string_lossy().starts_with('_')
+                            } else {
+                                false
+                            }
+                        })
+                        .collect();
+                    if !completion_files.is_empty() {
+                        completion_files
+                    } else {
+                        files
+                            .iter()
+                            .cloned()
+                            .filter(|file| file.extension() == Some(OsStr::new("sh")))
+                            .collect()
+                    }
                 }
             }
         };
@@ -114,7 +130,9 @@ impl fmt::Display for Plugin {
                 basedirs.insert(basedir);
             }
             if let Some(filename) = file.to_str() {
-                writeln!(formatter, "source {}", filename.replace("\\", "/"))?;
+                if !file.file_name().unwrap().to_string_lossy().starts_with('_') {
+                    writeln!(formatter, "source {}", filename.replace("\\", "/"))?;
+                }
             }
         }
 
@@ -128,13 +146,21 @@ impl fmt::Display for Plugin {
             // Add directories to fpath and PATH if we find any executable file
             for dir in basedirs.iter() {
                 if let Ok(files) = dir.read_dir() {
-                    if files.filter_map(|files| files.ok())
-                      .filter_map(|direntry| direntry.metadata().ok())
-                      .filter(|metadata| metadata.is_file())
-                      .map(|metadata| metadata.permissions())
-                      .any(|permission| permission.mode() & 0o111 != 0) {
-                          writeln!(formatter, "fpath+={}/", dir.display())?;
-                          writeln!(formatter, "PATH={}:$PATH", dir.display())?;
+                    let has_exe = files
+                        .filter_map(|files| files.ok())
+                        .filter_map(|direntry| direntry.metadata().ok())
+                        .filter(|metadata| metadata.is_file())
+                        .any(|metadata| metadata.permissions().mode() & 0o111 != 0);
+                    let has_completions = dir
+                        .read_dir()
+                        .unwrap()
+                        .filter_map(|files| files.ok())
+                        .any(|direntry| direntry.file_name().to_string_lossy().starts_with('_'));
+                    if has_exe {
+                        writeln!(formatter, "PATH={}:$PATH", dir.display())?;
+                    }
+                    if has_exe || has_completions {
+                        writeln!(formatter, "fpath+={}/", dir.display())?;
                     }
                 }
             }
