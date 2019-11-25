@@ -24,7 +24,7 @@ Add this to your *~/.zshrc*:
 ```zsh
 # Generate new ~/.zr/init.zsh if it does not exist or ~/.zshrc is newer
 if [[ ! -f ~/.config/zr.zsh ]] || [[ ~/.zshrc -nt ~/.config/zr.zsh ]]; then
-  zr load \
+  zr \
     frmendes/geometry \
     jedahan/geometry-hydrate \
     junegunn/fzf/shell/key-bindings.zsh \
@@ -65,7 +65,7 @@ Time (mean ± σ):     171.6 ms ±  4.4 ms
 ```zsh
 # benchmark.zsh
 function zrinit {
-  zr load sorin-ionescu/prezto/modules/git/alias.zsh \
+  zr sorin-ionescu/prezto/modules/git/alias.zsh \
     sorin-ionescu/prezto/modules/history/init.zsh \
     junegunn/fzf/shell/key-bindings.zsh \
     zsh-users/zsh-autosuggestions \
@@ -88,4 +88,5 @@ function zrinit {
 - [alanpearce](https://github.com/alanpearce) for bug reports and nix package
 - [nshtg](https://github.com/nshtg) for bug reports and windows fix
 - [foray1010](https://github.com/foray1010) for improving install instructions
+- [Avi-D-coder](https://github.com/avi-d-coder) for adding completions support
 - everyone on [#rust-beginners](irc://irc.mozilla.org/rust-beginners)
