@@ -29,7 +29,7 @@ impl Identifier {
             Err(e) => panic!(e),
         };
 
-        let file = name.split(".git/").nth(2).map(String::from);
+        let file = name.split(".git/").nth(1).map(String::from);
         let dir = PathBuf::from(url.path_segments().unwrap().collect::<Vec<_>>().join("/"));
         Identifier {
             name,
