@@ -47,19 +47,23 @@ format                                     | resolves to
 
 #### speed
 
-The following benchmark.zsh takes 171ms total, with 26ms spent in `zr load` for my 2012 13" retina macbook pro.
+The following benchmark.zsh takes 8ms to generate the file.
 
 ```zsh
 # install hyperfine for benchmarking
 cargo install hyperfine
 
-# benchmark zr init time
-hyperfine --warmup 3 'zsh -d -f -l -c "source benchmark.zsh && zrinit && exit"' | grep Time
-Time (mean ± σ):      26.0 ms ±   1.6 ms
+hyperfine --warmup 3 'zsh -d -f -l -c "source benchmark.zsh && zrinit && exit"' 'zsh -d -f -l -c "source benchmark.zsh && . <(zrinit) && exit"'
+# zr generation time
+Benchmark #1: zsh -d -f -l -c "source benchmark.zsh && zrinit && exit"
+  Time (mean ± σ):       8.6 ms ±   1.6 ms    [User: 4.4 ms, System: 4.3 ms]
+  Range (min … max):     6.1 ms …  12.8 ms    234 runs
 
-# benchmark total zsh load time
-hyperfine --warmup 3 'zsh -d -f -l -c "source benchmark.zsh && zrinit && source ~/.zr/init.zsh && exit"' | grep Time
-Time (mean ± σ):     171.6 ms ±  4.4 ms
+# zr generation + zsh load time
+Benchmark #2: zsh -d -f -l -c "source benchmark.zsh && . <(zrinit) && exit"
+  Time (mean ± σ):      36.8 ms ±   2.7 ms    [User: 28.8 ms, System: 9.3 ms]
+  Range (min … max):    33.4 ms …  48.2 ms    69 runs
+
 ```
 
 ```zsh
