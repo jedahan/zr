@@ -27,7 +27,7 @@ if [[ ! -f ~/.config/zr.zsh ]] || [[ ~/.zshrc -nt ~/.config/zr.zsh ]]; then
   zr \
     frmendes/geometry \
     jedahan/geometry-hydrate \
-    junegunn/fzf/shell/key-bindings.zsh \
+    junegunn/fzf.git/shell/key-bindings.zsh \
     > ~/.config/zr.zsh
 fi
 
@@ -69,9 +69,9 @@ Benchmark #2: zsh -d -f -l -c "source benchmark.zsh && . <(zrinit) && exit"
 ```zsh
 # benchmark.zsh
 function zrinit {
-  zr sorin-ionescu/prezto/modules/git/alias.zsh \
-    sorin-ionescu/prezto/modules/history/init.zsh \
-    junegunn/fzf/shell/key-bindings.zsh \
+  zr sorin-ionescu/prezto.git/modules/git/alias.zsh \
+    sorin-ionescu/prezto.git/modules/history/init.zsh \
+    junegunn/fzf.git/shell/key-bindings.zsh \
     zsh-users/zsh-autosuggestions \
     zdharma/fast-syntax-highlighting \
     molovo/tipz \
