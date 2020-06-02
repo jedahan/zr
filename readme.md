@@ -7,7 +7,7 @@
 
 Quick, simple zsh plugin manager
 
-    zr 0.9.0
+    zr 1.0.0
     by Jonathan Dahan <github@jonathan.is>
 
     zr --update                                                    updates loaded files listened in _ZR environment variable
