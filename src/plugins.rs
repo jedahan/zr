@@ -78,10 +78,14 @@ impl Plugins {
 }
 
 impl fmt::Display for Plugins {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(formatter, "export _ZR=$0")?;
         for plugin in &self.plugins {
-            writeln!(f, "{}", plugin)?;
+            writeln!(formatter, "{}", plugin)?;
         }
-        writeln!(f, "autoload -Uz compinit; compinit -iCd $HOME/.zcompdump")
+        writeln!(
+            formatter,
+            "autoload -Uz compinit; compinit -iCd $HOME/.zcompdump"
+        )
     }
 }

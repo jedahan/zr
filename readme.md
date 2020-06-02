@@ -8,10 +8,11 @@
 Quick, simple zsh plugin manager
 
     zr 0.9.0
-    by Jonathan Dahan <hi@jonathan.is>
+    by Jonathan Dahan <github@jonathan.is>
 
+    zr --update                                                    updates loaded files listened in _ZR environment variable
     zr [[http://example.com]plugin/name[.git/path/to/file.zsh]]    fetch or update plugins and output sourceable zsh
-    zr help     show help
+    zr help                                                        show help
 
 #### install
 
@@ -69,7 +70,7 @@ Benchmark #2: zsh -d -f -l -c "source benchmark.zsh && . <(zrinit) && exit"
 ```zsh
 # benchmark.zsh
 function zrinit {
-  zr sorin-ionescu/prezto.git/modules/git/alias.zsh \
+  XDG_CACHE_HOME=/tmp/zrbenchmark zr sorin-ionescu/prezto.git/modules/git/alias.zsh \
     sorin-ionescu/prezto.git/modules/history/init.zsh \
     junegunn/fzf.git/shell/key-bindings.zsh \
     zsh-users/zsh-autosuggestions \
@@ -93,4 +94,6 @@ function zrinit {
 - [nshtg](https://github.com/nshtg) for bug reports and windows fix
 - [foray1010](https://github.com/foray1010) for improving install instructions
 - [Avi-D-coder](https://github.com/avi-d-coder) for adding completions support
+- [@ralsei](https://github.com/ralsei) for prodding to update crates.io
+- [@tekumara](https://github.com/tekumara) for helping figure out --update
 - everyone on [#rust-beginners](irc://irc.mozilla.org/rust-beginners)

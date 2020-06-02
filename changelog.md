@@ -1,3 +1,9 @@
+# 1.0.0
+* Finally released!
+* :warning: if you are updating from 0.8.2 (last published crates.io version) this will break your config!
+  * read the changelog for 0.9.0 on how to update
+* Thank you @ralsei and @tekumara
+
 # 0.9.0
 
 * Deprecated `load`, `update`, and `list`

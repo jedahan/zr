@@ -57,14 +57,6 @@ impl Plugin {
             .filter(|file| file.is_file())
             .collect();
 
-        // We try and find the main file by looking for the first of
-        //
-
-        // * {name}.plugin.zsh (antigen style)
-        // * {name}/init.zsh (prezto style)
-        // * *zsh (zsh style)
-        // * _* (completions)
-        // * *sh (shell style)
         let name = dir.components().last().unwrap();
 
         let sources: Vec<PathBuf> = {
