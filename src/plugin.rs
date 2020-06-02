@@ -2,9 +2,8 @@ use std::collections::HashSet;
 use std::ffi::OsStr;
 use std::iter::FromIterator;
 use std::path::{Path, PathBuf};
-use std::{fmt, fs, result};
+use std::{fmt, result};
 
-use crate::error::Error;
 use crate::identifier::Identifier;
 //#[cfg(!windows)]
 use std::os::unix::fs::PermissionsExt;
@@ -17,31 +16,30 @@ pub struct Plugin {
 
 impl Plugin {
     /// Simple git clone; does not support ssh authentication yet
-    fn clone_if_empty(source: &str, path: &Path) -> Result<(), Error> {
+    fn clone_if_empty(source: &url::Url, path: &Path) -> Result<(), std::io::Error> {
         if !path.is_dir() {
-            println!("cloning {} into {:?}", source, path);
-            git2::Repository::clone(&source, &path).unwrap();
+            eprintln!("cloning {} into {:?}", source, path);
+            git2::Repository::clone(source.as_str(), &path).unwrap();
         }
         Ok(())
     }
 
-    /// The only thing you need to know is an identifier and where zr_home is
+    /// The only thing you need to know is an identifier and the cache directory
     ///
     /// Side-effects include
     ///
-    /// * attempting to create zr_home if it does not exist
+    /// * attempting to create the cache if it does not exist
     /// * downloading the repo if it is empty
-    /// * adding
-    pub fn new(zr_home: &Path, identifier: Identifier) -> Result<Plugin, Error> {
-        if !zr_home.exists() {
-            fs::create_dir_all(zr_home)
-                .unwrap_or_else(|_| panic!("error creating plugin dir '{:?}'", &zr_home));
-        }
-        let repository = identifier.repository();
-        let name = identifier.name();
-        let path = zr_home.join(&name);
-
-        Plugin::clone_if_empty(&repository, &path)?;
+    ///
+    pub fn new(cache: &Path, identifier: Identifier) -> Result<Plugin, std::io::Error> {
+        let Identifier {
+            ref url,
+            ref dir,
+            ref file,
+            ..
+        } = identifier.clone();
+        let path = &cache.join(dir);
+        Plugin::clone_if_empty(url, &path)?;
 
         // If we were given an Identifier with a filepath, return a plugin with just that file
         if let Ok(filepath) = identifier.filepath() {
@@ -64,6 +62,7 @@ impl Plugin {
 
         // We try and find the main file by looking for the first of
         //
+
         // * name.plugin.zsh
         // * {author}/{name}/{name.plugin.zsh} (antigen style)
         // * {author}/{name}/init.zsh (prezto style)
@@ -124,7 +123,7 @@ impl Plugin {
 impl fmt::Display for Plugin {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         let mut basedirs = HashSet::new();
-        writeln!(formatter, "# {}", self.identifier.source())?;
+        writeln!(formatter, "# {}", self.identifier.name)?;
         for file in &self.files {
             if let Some(basedir) = file.parent() {
                 basedirs.insert(basedir);
@@ -146,6 +145,7 @@ impl fmt::Display for Plugin {
             // Add directories to fpath and PATH if we find any executable file
             for dir in basedirs.iter() {
                 if let Ok(files) = dir.read_dir() {
+
                     let has_exe = files
                         .filter_map(|files| files.ok())
                         .filter_map(|direntry| direntry.metadata().ok())
