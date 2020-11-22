@@ -83,9 +83,5 @@ impl fmt::Display for Plugins {
         for plugin in &self.plugins {
             writeln!(formatter, "{}", plugin)?;
         }
-        writeln!(
-            formatter,
-            "autoload -U compinit; compinit -i"
-        )
     }
 }

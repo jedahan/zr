@@ -84,7 +84,5 @@ source /home/micro/.cache/zr/zsh-users/zsh-autosuggestions/zsh-autosuggestions.p
 source /home/micro/.cache/zr/zsh-users/zsh-autosuggestions/zsh-autosuggestions.zsh
 fpath+=/home/micro/.cache/zr/zsh-users/zsh-autosuggestions/
 PATH=/home/micro/.cache/zr/zsh-users/zsh-autosuggestions:$PATH
-
-autoload -U compinit; compinit -i
 ";
 }
