@@ -85,7 +85,7 @@ impl fmt::Display for Plugins {
         }
         writeln!(
             formatter,
-            "autoload -Uz compinit; compinit -iCd $HOME/.zcompdump"
+            "autoload -U compinit; compinit -i"
         )
     }
 }

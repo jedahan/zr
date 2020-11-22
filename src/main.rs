@@ -85,6 +85,6 @@ source /home/micro/.cache/zr/zsh-users/zsh-autosuggestions/zsh-autosuggestions.z
 fpath+=/home/micro/.cache/zr/zsh-users/zsh-autosuggestions/
 PATH=/home/micro/.cache/zr/zsh-users/zsh-autosuggestions:$PATH
 
-autoload -Uz compinit; compinit -iCd $HOME/.zcompdump
+autoload -U compinit; compinit -i
 ";
 }
