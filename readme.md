@@ -48,23 +48,24 @@ format                                     | resolves to
 
 #### speed
 
-The following benchmark.zsh takes 8ms to generate the file.
+The following two benchmarks show on my dell xps13 9380
+* it takes 5ms to generate a sourceable script from a dozen or so repos
+* it takes an additional 15ms for zsh to load said script
 
 ```zsh
 # install hyperfine for benchmarking
-cargo install hyperfine
+$ which hyperfine || cargo install hyperfine
 
-hyperfine --warmup 3 'zsh -d -f -l -c "source benchmark.zsh && zrinit && exit"' 'zsh -d -f -l -c "source benchmark.zsh && . <(zrinit) && exit"'
-# zr generation time
+# run 
+$ hyperfine --warmup 3 'zsh -d -f -l -c "source benchmark.zsh && zrinit && exit"' 'zsh -d -f -l -c "source benchmark.zsh && . <(zrinit) && exit"'
+
 Benchmark #1: zsh -d -f -l -c "source benchmark.zsh && zrinit && exit"
-  Time (mean ± σ):       8.6 ms ±   1.6 ms    [User: 4.4 ms, System: 4.3 ms]
-  Range (min … max):     6.1 ms …  12.8 ms    234 runs
+  Time (mean ± σ):       5.3 ms ±   2.3 ms    [User: 2.8 ms, System: 2.4 ms]
+  Range (min … max):     2.9 ms …   9.9 ms    285 runs
 
-# zr generation + zsh load time
 Benchmark #2: zsh -d -f -l -c "source benchmark.zsh && . <(zrinit) && exit"
-  Time (mean ± σ):      36.8 ms ±   2.7 ms    [User: 28.8 ms, System: 9.3 ms]
-  Range (min … max):    33.4 ms …  48.2 ms    69 runs
-
+  Time (mean ± σ):      21.8 ms ±   1.0 ms    [User: 17.5 ms, System: 5.1 ms]
+  Range (min … max):    19.7 ms …  26.4 ms    127 runs
 ```
 
 ```zsh
