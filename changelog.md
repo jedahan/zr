@@ -1,3 +1,7 @@
+# 1.0.1
+* add `functions` directories to fpath if functions are found
+* updated dependencies
+
 # 1.0.0
 * Finally released!
 * :warning: if you are updating from 0.8.2 (last published crates.io version) this will break your config!
