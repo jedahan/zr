@@ -83,5 +83,6 @@ impl fmt::Display for Plugins {
         for plugin in &self.plugins {
             writeln!(formatter, "{}", plugin)?;
         }
+        Ok(())
     }
 }

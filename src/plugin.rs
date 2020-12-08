@@ -145,11 +145,19 @@ impl fmt::Display for Plugin {
                         .unwrap()
                         .filter_map(|files| files.ok())
                         .any(|direntry| direntry.file_name().to_string_lossy().starts_with('_'));
+                    let has_functions = dir
+                        .read_dir()
+                        .unwrap()
+                        .filter_map(|files| files.ok())
+                        .any(|direntry| direntry.file_name().to_string_lossy() == "functions");
                     if has_exe {
                         writeln!(formatter, "PATH={}:$PATH", dir.display())?;
                     }
                     if has_exe || has_completions {
                         writeln!(formatter, "fpath+={}/", dir.display())?;
+                    }
+                    if has_functions {
+                        writeln!(formatter, "fpath+={}/functions", dir.display())?;
                     }
                 }
             }
