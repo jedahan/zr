@@ -1,8 +1,6 @@
+<img src="zrat.png" alt="zrat" title="zrat" align="left" width=120 />
+
 ### zr(at)
-
-<img src="zrat.png" alt="zrat" title="zrat" align="right" width=120 />
-
-[![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](https://choosealicense.com/licenses/mpl-2.0/)
 
 Quick, simple zsh plugin manager
 
