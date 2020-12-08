@@ -13,14 +13,21 @@ Quick, simple zsh plugin manager
 
 #### install
 
-You can use crates.io and cargo to just `cargo install zr`
+`zr` is published to crates.io, and can be installed with `cargo install zr`
 
 #### usage
 
 Add this to your *~/.zshrc*:
 
 ```zsh
-# Generate new ~/.zr/init.zsh if it does not exist or ~/.zshrc is newer
+# simplest usage
+. <(zr frmendes/geometry junegunn/fzf.git/shell/key-bindings.zsh)
+```
+
+A bit more complex example, that only generates when .zshrc has been updated:
+
+```zsh
+# Generate new ~/.config/zr.zsh if it does not exist or if ~/.zshrc has been changed
 if [[ ! -f ~/.config/zr.zsh ]] || [[ ~/.zshrc -nt ~/.config/zr.zsh ]]; then
   zr \
     frmendes/geometry \
@@ -34,7 +41,7 @@ source ~/.config/zr.zsh
 
 #### identifiers
 
-zr supports four identifier formats, note that the last format requires `.git` as a delimeter.
+`zr` supports four identifier formats. The last format requires `.git` as a delimeter.
 
 format                                     | resolves to
 -------------------------------------------|-----------
