@@ -37,13 +37,12 @@ fn main() {
 }
 
 fn help() {
-    println!("
-  {name} {version}
-  by Jonathan Dahan <hi@jonathan.is>
+    println!("{name} {version}
+by Jonathan Dahan <hi@jonathan.is>
 
-  {name} [[http://example.com]plugin/name[.git/path/to/file.zsh]]    fetch plugins and output sourceable zsh
-  {name} --update                                                    update plugins from already sourced zsh
-  {name} help     show help", version=VERSION, name=NAME);
+{name} [[http://example.com]plugin/name[.git/path/to/file.zsh]]    fetch plugins and output sourceable zsh
+{name} --update                                                    update plugins from already sourced zsh
+{name} help                                                        show help", version=VERSION, name=NAME);
 }
 
 /// Take a list of identifiers (from cli args) and output sourceable zsh

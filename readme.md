@@ -7,11 +7,11 @@
 
 Quick, simple zsh plugin manager
 
-    zr 1.0.0
-    by Jonathan Dahan <github@jonathan.is>
+    zr 1.0.2
+    by Jonathan Dahan <hi@jonathan.is>
 
-    zr --update                                                    updates loaded files listened in _ZR environment variable
-    zr [[http://example.com]plugin/name[.git/path/to/file.zsh]]    fetch or update plugins and output sourceable zsh
+    zr [[http://example.com]plugin/name[.git/path/to/file.zsh]]    fetch plugins and output sourceable zsh
+    zr --update                                                    updates plugins from already sourced zsh
     zr help                                                        show help
 
 #### install

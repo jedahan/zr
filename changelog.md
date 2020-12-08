@@ -1,3 +1,6 @@
+# 1.0.2
+* cleanup help output
+
 # 1.0.1
 * add `functions` directories to fpath if functions are found
 * updated dependencies

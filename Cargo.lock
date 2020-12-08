@@ -734,7 +734,7 @@ checksum = "45af6a010d13e4cf5b54c94ba5a2b2eba5596b9e46bf5875612d332a1f2b3f86"
 
 [[package]]
 name = "zr"
-version = "1.0.0"
+version = "1.0.2"
 dependencies = [
  "directories",
  "git2",
