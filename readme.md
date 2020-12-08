@@ -1,8 +1,8 @@
-<img src="zrat.png" alt="zrat" title="zrat" align="left" width=120 />
-
 ### zr(at)
 
 Quick, simple zsh plugin manager
+
+<img src="zrat.png" alt="zrat" title="zrat" align="left" width=120 />
 
     zr 1.0.2
     by Jonathan Dahan <hi@jonathan.is>
