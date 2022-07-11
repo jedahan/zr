@@ -26,7 +26,7 @@ impl Identifier {
             Err(ParseError::RelativeUrlWithoutBase) => {
                 Url::parse(&format!("https://github.com/{}", &uri)).unwrap()
             }
-            Err(e) => panic!(e),
+            Err(e) => panic!("{}", e),
         };
 
         let file = name.split(".git/").nth(1).map(String::from);

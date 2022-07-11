@@ -13,10 +13,10 @@ edition = "2018"
 travis-ci = { repository = "jedahan/zr" }
 
 [dependencies]
-git2 = "0.13.12"
+git2 = "0.14.4"
 directories = "3.0.1"
 url = "2.2.0"
-git2_credentials = "0.7.0"
+git2_credentials = "0.8.0"
 
 [profile.release]
 lto = true
