@@ -99,6 +99,7 @@ function zrinit {
 - [nshtg](https://github.com/nshtg) for bug reports and windows fix
 - [foray1010](https://github.com/foray1010) for improving install instructions
 - [Avi-D-coder](https://github.com/avi-d-coder) for adding completions support
-- [@ralsei](https://github.com/ralsei) for prodding to update crates.io
-- [@tekumara](https://github.com/tekumara) for helping figure out --update
+- [ralsei](https://github.com/ralsei) for prodding to update crates.io
+- [tekumara](https://github.com/tekumara) for helping figure out --update
+- [myrovh](https://github.com/myrovh) for fixing panics on some linux systems
 - everyone on [#rust-beginners](irc://irc.mozilla.org/rust-beginners)
