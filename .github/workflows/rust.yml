@@ -6,19 +6,20 @@ on:
       - main
 
 jobs:
-  create-release:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: taiki-e/create-gh-release-action@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: test
+        run: cargo test
 
-  upload-assets:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: taiki-e/upload-rust-binary-action@v1
+      - name: build
+        run: cargo build --release
+      - uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          bin: zr
-          token: ${{ secrets.GITHUB_TOKEN }}
+          files: target/release/zr
