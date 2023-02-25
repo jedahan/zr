@@ -1,6 +1,6 @@
 [package]
 name = "zr"
-version = "1.0.2"
+version = "1.1.0"
 authors = ["Jonathan Dahan <hi@jonathan.is>"]
 description = "quick, simple zsh package manager"
 readme = "readme.md"
@@ -9,9 +9,6 @@ license = "MPL-2.0"
 repository = "https://github.com/jedahan/zr.git"
 edition = "2021"
 
-[badges]
-travis-ci = { repository = "jedahan/zr" }
-
 [dependencies]
 git2 = "0.16.1"
 directories = "4.0.1"
@@ -19,7 +16,4 @@ url = "2.3.1"
 git2_credentials = "0.10.0"
 
 [profile.release]
-lto = true
-codegen-units = 1
-incremental = false
 strip = true

@@ -1,32 +1,24 @@
-name: Rust
+name: Release
 
-on: [push]
+on:
+  push:
+    branch:
+      - main
 
 jobs:
-  build:
-
+  create-release:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v1
-    - name: build
-      run: cargo build --verbose
-    - name: test
-      run: cargo test --verbose
-    - name: extend
-      run: |
-        cargo install cargo-bloat
-        cargo install cargo-geiger
-        cargo install cargo-audit
-        cargo install tokei
-    - name: size
-      run: cargo bloat --release --crates
+      - uses: actions/checkout@v3
+      - uses: taiki-e/create-gh-release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: geiger
-      run: cargo geiger
-
-    - name: audit
-      run: cargo audit
-
-    - name: count
-      run: tokei
+  upload-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: taiki-e/upload-rust-binary-action@v1
+        with:
+          bin: zr
+          token: ${{ secrets.GITHUB_TOKEN }}
