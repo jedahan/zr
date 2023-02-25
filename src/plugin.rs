@@ -19,7 +19,7 @@ impl Plugin {
     fn clone_if_empty(source: &url::Url, path: &Path) -> Result<(), std::io::Error> {
         if !path.is_dir() {
             eprintln!("cloning {} into {:?}", source, path);
-            git2::Repository::clone(source.as_str(), &path).unwrap();
+            git2::Repository::clone(source.as_str(), path).unwrap();
         }
         Ok(())
     }
@@ -39,7 +39,7 @@ impl Plugin {
             ..
         } = identifier.clone();
         let path = &cache.join(dir);
-        Plugin::clone_if_empty(url, &path)?;
+        Plugin::clone_if_empty(url, path)?;
 
         // If we were given an Identifier with a file, return a plugin with just that file
         if let Some(file) = file {
@@ -62,7 +62,7 @@ impl Plugin {
         let sources: Vec<PathBuf> = {
             if let Some(antigen_plugin_file) = files
                 .iter()
-                .find(|&file| *file == path.join(&name).with_extension("plugin.zsh"))
+                .find(|&file| *file == path.join(name).with_extension("plugin.zsh"))
             {
                 vec![antigen_plugin_file.to_owned()]
             } else if let Some(prezto_plugin_file) =
@@ -120,14 +120,14 @@ impl fmt::Display for Plugin {
             }
             if let Some(filename) = file.to_str() {
                 if !file.file_name().unwrap().to_string_lossy().starts_with('_') {
-                    writeln!(formatter, "source {}", filename.replace("\\", "/"))?;
+                    writeln!(formatter, "source {}", filename.replace('\\', "/"))?;
                 }
             }
         }
 
         if cfg!(windows) {
             for basedir in basedirs.iter() {
-                let dir = basedir.to_string_lossy().replace("\\", "/");
+                let dir = basedir.to_string_lossy().replace('\\', "/");
                 writeln!(formatter, "fpath+={}/", dir)?;
                 writeln!(formatter, "PATH={}:$PATH", dir)?;
             }
