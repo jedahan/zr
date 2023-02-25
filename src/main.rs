@@ -40,9 +40,16 @@ fn help() {
     println!("{name} {version}
 by Jonathan Dahan <hi@jonathan.is>
 
-{name} [[http://example.com]plugin/name[.git/path/to/file.zsh]]    fetch plugins and output sourceable zsh
-{name} --update                                                    update plugins from already sourced zsh
-{name} help                                                        show help", version=VERSION, name=NAME);
+{name} [[http://example.com]plugin/name[.git/a/file.zsh]]    fetch plugins and output sourceable zsh
+{name} --update                                              update plugins from already sourced zsh
+{name} help                                                  show help
+
+Examples
+
+{name} author/name                                  *.zsh from github.com/author/name
+{name} author/name/file.zsh                      file.zsh from github.com/author/name
+{name} https://gitlab.com/a/plugin                  *.zsh from gitlab.com/a/plugin
+{name} https://gitlab.com/a/plugin.git/file.zsh  file.zsh from gitlab.com/a/plugin", version=VERSION, name=NAME);
 }
 
 /// Take a list of identifiers (from cli args) and output sourceable zsh

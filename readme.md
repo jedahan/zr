@@ -4,12 +4,19 @@ Quick, simple zsh plugin manager
 
 <img src="zrat.png" alt="zrat" title="zrat" align="left" width=120 />
 
-    zr 1.0.2
+    zr 1.1.0
     by Jonathan Dahan <hi@jonathan.is>
 
-    zr [[http://example.com]plugin/name[.git/path/to/file.zsh]]    fetch plugins and output sourceable zsh
-    zr --update                                                    updates plugins from already sourced zsh
-    zr help                                                        show help
+    zr [[http://example.com]plugin/name[.git/a/file.zsh]]    fetch plugins and output sourceable zsh
+    zr --update                                              updates plugins from already sourced zsh
+    zr help                                                  show help
+
+    Examples
+
+    zr author/name                                  *.zsh from github.com/author/name
+    zr author/name/file.zsh                      file.zsh from github.com/author/name
+    zr https://gitlab.com/a/plugin                  *.zsh from gitlab.com/a/plugin
+    zr https://gitlab.com/a/plugin.git/file.zsh  file.zsh from gitlab.com/a/plugin
 
 #### install
 
