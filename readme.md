@@ -102,4 +102,5 @@ function zrinit {
 - [ralsei](https://github.com/ralsei) for prodding to update crates.io
 - [tekumara](https://github.com/tekumara) for helping figure out --update
 - [myrovh](https://github.com/myrovh) for fixing panics on some linux systems
+- [TimB87](https://github.com/TimB87) for keeping dependencies up-to-date
 - everyone on [#rust-beginners](irc://irc.mozilla.org/rust-beginners)
