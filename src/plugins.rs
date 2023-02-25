@@ -50,7 +50,7 @@ impl Plugins {
 
     pub fn new(cache: &Path, identifiers: Vec<Identifier>) -> Plugins {
         if !cache.exists() {
-            create_dir_all(&cache).expect("failed to create the cache directory");
+            create_dir_all(cache).expect("failed to create the cache directory");
         }
 
         let mut plugins: Vec<Plugin> = vec![];
@@ -61,7 +61,7 @@ impl Plugins {
                 .find(|plugin| plugin.identifier == identifier)
             {
                 if let Some(file) = &identifier.file {
-                    plugin.files.insert(cache.join(&identifier.dir).join(&file));
+                    plugin.files.insert(cache.join(&identifier.dir).join(file));
                 }
             };
 

@@ -53,15 +53,15 @@ pub fn load(identifiers: Vec<Identifier>) -> plugins::Plugins {
 }
 
 pub fn update() {
-    let _zr = env::var_os("_ZR").expect("_ZR env variable unset, bailing on update");
+    let zr = env::var_os("_ZR").expect("_ZR env variable unset, bailing on update");
 
-    if let Ok(init_file) = OpenOptions::new().read(true).open(&_zr) {
+    if let Ok(init_file) = OpenOptions::new().read(true).open(zr) {
         let identifiers = BufReader::new(&init_file)
             .lines()
             .map(|line| line.unwrap())
             .filter(|line| line.starts_with("# "))
             .map(|line| String::from(line.split_whitespace().last().unwrap()))
-            .map(|identifier| Identifier::new(identifier))
+            .map(Identifier::new)
             .collect();
 
         let plugins = load(identifiers);
