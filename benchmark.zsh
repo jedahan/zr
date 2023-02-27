@@ -16,3 +16,12 @@ function zrinit {
     jedahan/alacritty-completions \
     zpm-zsh/ssh
 }
+
+# For comparing different release profiles
+
+# hyperfine --warmup 3 \
+#  'zsh -d -f -l -c "source $PWD/benchmark.zsh && zrinit target/release/zr-0 && exit"' \
+#  'zsh -d -f -l -c "source $PWD/benchmark.zsh && zrinit target/release/zr-s && exit"' \
+#  'zsh -d -f -l -c "source $PWD/benchmark.zsh && zrinit target/release/zr-3 && exit"' \
+#  'zsh -d -f -l -c "source $PWD/benchmark.zsh && zrinit target/release/zr-lto && exit"' \
+#  'zsh -d -f -l -c "source $PWD/benchmark.zsh && zrinit target/release/zr-default && exit"'
