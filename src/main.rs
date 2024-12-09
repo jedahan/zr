@@ -5,6 +5,10 @@
 //!   * downloads the code from those repos
 //!   * and generates an init.zsh to setup paths and load zsh scripts for your zshrc
 //!
+extern crate directories;
+extern crate git2_credentials;
+extern crate url;
+
 use directories::ProjectDirs;
 use std::env;
 use std::fs::OpenOptions;

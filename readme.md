@@ -7,16 +7,21 @@ nimble zsh plugin manager
     zr 1.2.0
     by Jonathan Dahan <hi@jonathan.is>
 
-    zr [[https://example.com]/plugin/name[.git/a/file.zsh]]    fetch plugins and output sourceable zsh
-    zr --update                                              updates plugins from already sourced zsh
-    zr help                                                  show help
+    Example
 
-    Examples
+    . <(zr geometry-zsh/geometry junegunn/fzf.git/shell/key-bindings.zsh)
 
-    zr author/name                                  *.zsh from github.com/author/name
-    zr author/name/file.zsh                      file.zsh from github.com/author/name
-    zr https://gitlab.com/a/plugin                  *.zsh from gitlab.com/a/plugin
-    zr https://gitlab.com/a/plugin.git/file.zsh  file.zsh from gitlab.com/a/plugin
+    Format
+
+    zr author/name                                    *.zsh from github.com/author/name
+    zr author/name/file.zsh                        file.zsh from github.com/author/name
+    zr https://gitlab.com/a/plugin                    *.zsh from gitlab.com/a/plugin
+    zr https://gitlab.com/a/plugin.git/file.zsh    file.zsh from gitlab.com/a/plugin
+
+    Commands
+
+    zr +update                                      update plugins from already sourced zsh
+    zr +help                                        show help
 
 #### install
 
