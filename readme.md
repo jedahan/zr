@@ -4,10 +4,10 @@
 
 nimble zsh plugin manager
 
-    zr 1.1.1
+    zr 1.2.0
     by Jonathan Dahan <hi@jonathan.is>
 
-    zr [[http://example.com]plugin/name[.git/a/file.zsh]]    fetch plugins and output sourceable zsh
+    zr [[https://example.com]/plugin/name[.git/a/file.zsh]]    fetch plugins and output sourceable zsh
     zr --update                                              updates plugins from already sourced zsh
     zr help                                                  show help
 

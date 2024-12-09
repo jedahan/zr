@@ -1,5 +1,9 @@
+# 1.2.0
+* add +help, +version
+
 # 1.1.1
 * default to recursive clones (thanks @olets)
+* update dependencies
 
 # 1.1.0
 * update dependencies to support openssl 3 (thanks @TimB87)

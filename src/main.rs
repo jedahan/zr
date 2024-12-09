@@ -22,8 +22,16 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 fn main() {
     if let Some(subcommand) = env::args().nth(1) {
-        if subcommand.as_str() == "--update" {
+        if ["--update", "+update", "-u", "+u" ].contains(&subcommand.as_str()) {
             update();
+            return;
+        }
+        if ["--help", "+help", "-h", "+h" ].contains(&subcommand.as_str()) {
+            help();
+            return;
+        }
+        if ["--version", "+version", "-v", "+v" ].contains(&subcommand.as_str()) {
+            version();
             return;
         }
         if subcommand.as_str().contains('/') {
@@ -36,20 +44,29 @@ fn main() {
     help()
 }
 
+fn version() {
+    println!("{name} {version}", version=VERSION, name=NAME);
+}
+
 fn help() {
-    println!("{name} {version}
-by Jonathan Dahan <hi@jonathan.is>
+    version();
+    println!("by Jonathan Dahan <hi@jonathan.is>
 
-{name} [[http://example.com]plugin/name[.git/a/file.zsh]]    fetch plugins and output sourceable zsh
-{name} --update                                              update plugins from already sourced zsh
-{name} help                                                  show help
+Example
 
-Examples
+. <(zr geometry-zsh/geometry junegunn/fzf.git/shell/key-bindings.zsh)
 
-{name} author/name                                  *.zsh from github.com/author/name
-{name} author/name/file.zsh                      file.zsh from github.com/author/name
-{name} https://gitlab.com/a/plugin                  *.zsh from gitlab.com/a/plugin
-{name} https://gitlab.com/a/plugin.git/file.zsh  file.zsh from gitlab.com/a/plugin", version=VERSION, name=NAME);
+Format
+
+{name} author/name                                    *.zsh from github.com/author/name
+{name} author/name/file.zsh                        file.zsh from github.com/author/name
+{name} https://gitlab.com/a/plugin                    *.zsh from gitlab.com/a/plugin
+{name} https://gitlab.com/a/plugin.git/file.zsh    file.zsh from gitlab.com/a/plugin
+
+Commands
+
+{name} +update                                      update plugins from already sourced zsh
+{name} +help                                        show help", name=NAME);
 }
 
 /// Take a list of identifiers (from cli args) and output sourceable zsh
