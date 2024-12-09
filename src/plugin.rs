@@ -19,7 +19,7 @@ impl Plugin {
     fn clone_if_empty(source: &url::Url, path: &Path) -> Result<(), std::io::Error> {
         if !path.is_dir() {
             eprintln!("cloning {} into {:?}", source, path);
-            git2::Repository::clone(source.as_str(), path).unwrap();
+            git2::Repository::clone_recurse(source.as_str(), path).unwrap();
         }
         Ok(())
     }

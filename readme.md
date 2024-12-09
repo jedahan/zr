@@ -4,7 +4,7 @@ Quick, simple zsh plugin manager
 
 <img src="zrat.png" alt="zrat" title="zrat" align="left" width=120 />
 
-    zr 1.1.0
+    zr 1.1.1
     by Jonathan Dahan <hi@jonathan.is>
 
     zr [[http://example.com]plugin/name[.git/a/file.zsh]]    fetch plugins and output sourceable zsh
@@ -110,4 +110,5 @@ function zrinit {
 - [tekumara](https://github.com/tekumara) for helping figure out --update
 - [myrovh](https://github.com/myrovh) for fixing panics on some linux systems
 - [TimB87](https://github.com/TimB87) for adding openssl 3 support
+- [olets](https://github.com/olets) for adding recursive clone support
 - everyone on [#rust-beginners](irc://irc.mozilla.org/rust-beginners)
