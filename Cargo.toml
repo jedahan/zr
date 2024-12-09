@@ -7,6 +7,7 @@ readme = "readme.md"
 keywords = ["zsh", "package", "manager", "cli"]
 license = "MPL-2.0"
 repository = "https://github.com/jedahan/zr.git"
+edition = "2021"
 
 [dependencies]
 directories = "5.0.1"
