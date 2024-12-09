@@ -1,6 +1,6 @@
 [package]
 name = "zr"
-version = "1.1.0"
+version = "1.1.1"
 authors = ["Jonathan Dahan <hi@jonathan.is>"]
 description = "quick, simple zsh package manager"
 readme = "readme.md"
@@ -10,10 +10,10 @@ repository = "https://github.com/jedahan/zr.git"
 edition = "2021"
 
 [dependencies]
-git2 = "0.16.1"
-directories = "4.0.1"
-url = "2.3.1"
-git2_credentials = "0.10.0"
+directories = "5.0.1"
+git2 = "0.19.0"
+git2_credentials = "0.14.0"
+url = "2.5.4"
 
 [profile.release]
 strip = true
