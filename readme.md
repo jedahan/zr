@@ -103,6 +103,12 @@ function zrinit {
 }
 ```
 
+#### publishing
+
+    git tag 1.2.1
+    git push --tags
+    cargo publish --locked
+
 #### thanks
 
 - [SX91](https://github.com/SX91) for linux fixes
