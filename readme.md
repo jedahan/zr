@@ -4,7 +4,7 @@
 
 nimble zsh plugin manager
 
-    zr 1.2.0
+    zr 1.2.1
     by Jonathan Dahan <hi@jonathan.is>
 
     Example

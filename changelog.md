@@ -1,3 +1,6 @@
+# 1.2.1
+* change some build settings to make the binary smaller
+
 # 1.2.0
 * add +help, +version
 

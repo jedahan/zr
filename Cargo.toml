@@ -1,13 +1,13 @@
 [package]
 name = "zr"
-version = "1.2.0"
+edition = "2021"
+version = "1.2.1"
 authors = ["Jonathan Dahan <hi@jonathan.is>"]
 description = "quick, simple zsh package manager"
 readme = "readme.md"
 keywords = ["zsh", "package", "manager", "cli"]
 license = "MPL-2.0"
 repository = "https://github.com/jedahan/zr.git"
-edition = "2021"
 
 [dependencies]
 directories = "5.0.1"
@@ -16,6 +16,8 @@ git2_credentials = "0.14.0"
 url = "2.5.4"
 
 [profile.release]
-strip = true
+opt-level = "s"
 lto = true
 codegen-units = 1
+panic = "abort"
+strip = true
