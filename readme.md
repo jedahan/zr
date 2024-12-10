@@ -32,7 +32,6 @@ nimble zsh plugin manager
 Add this to your *~/.zshrc*:
 
 ```zsh
-# simplest usage
 . <(zr frmendes/geometry junegunn/fzf.git/shell/key-bindings.zsh)
 ```
 
@@ -64,24 +63,24 @@ format                                     | resolves to
 
 #### speed
 
-The following two benchmarks show on my dell xps13 9380
-* it takes 5ms to generate a sourceable script from a dozen or so repos
-* it takes an additional 15ms for zsh to load said script
+The following two benchmarks show on a 2024 14" macbook pro m4
+* it takes 10ms to generate a sourceable script from a dozen or so repos
+* it takes an additional 30ms for zsh to load said script
 
 ```zsh
-# install hyperfine for benchmarking
-$ which hyperfine || cargo install hyperfine
+$ hyperfine --warmup 3 \
+  --command-name "generate shell script" \
+    'zsh -d -f -l -c "source benchmark.zsh && zrinit && exit"' \
+  --command-name "generate and load shell script" \
+    'zsh -d -f -l -c "source benchmark.zsh && . <(zrinit) && exit"'
 
-# run 
-$ hyperfine --warmup 3 'zsh -d -f -l -c "source benchmark.zsh && zrinit && exit"' 'zsh -d -f -l -c "source benchmark.zsh && . <(zrinit) && exit"'
+Benchmark 1: generate shell script
+  Time (mean ± σ):       8.2 ms ±   1.3 ms    [User: 3.4 ms, System: 3.7 ms]
+  Range (min … max):     7.2 ms …  12.1 ms    258 runs
 
-Benchmark #1: zsh -d -f -l -c "source benchmark.zsh && zrinit && exit"
-  Time (mean ± σ):       5.3 ms ±   2.3 ms    [User: 2.8 ms, System: 2.4 ms]
-  Range (min … max):     2.9 ms …   9.9 ms    285 runs
-
-Benchmark #2: zsh -d -f -l -c "source benchmark.zsh && . <(zrinit) && exit"
-  Time (mean ± σ):      21.8 ms ±   1.0 ms    [User: 17.5 ms, System: 5.1 ms]
-  Range (min … max):    19.7 ms …  26.4 ms    127 runs
+Benchmark 2: generate and load shell script
+  Time (mean ± σ):      42.1 ms ±   2.6 ms    [User: 22.4 ms, System: 58.2 ms]
+  Range (min … max):    38.7 ms …  51.2 ms    54 runs
 ```
 
 ```zsh
