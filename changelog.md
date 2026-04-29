@@ -1,3 +1,12 @@
+# 2.0.0 [unreleased]
+* update default --base to https://codeberg.org from https://github.com
+* exit code 1 if invoked correctly, even if help is printed out
+* deprecate -- as actions, use +help, +update, +version, +generate
+
+# 1.3.0 [unreleased]
+* add --base option for overriding short form base url in prep of breaking change to default base
+* update dependencies
+
 # 1.2.1
 * change some build settings to make the binary smaller
 

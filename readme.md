@@ -4,7 +4,7 @@
 
 nimble zsh plugin manager
 
-    zr 1.2.1
+    zr 2.0.0
     by Jonathan Dahan <hi@jonathan.is>
 
     Example
@@ -17,13 +17,16 @@ nimble zsh plugin manager
     zr author/name/file.zsh                        file.zsh from github.com/author/name
     zr https://gitlab.com/a/plugin                    *.zsh from gitlab.com/a/plugin
     zr https://gitlab.com/a/plugin.git/file.zsh    file.zsh from gitlab.com/a/plugin
+    zr --base https://codeberg.org author/name        *.zsh from codeberg.org/author/name
 
     Commands
 
+    zr +generate                                    print init.zsh (default command)
     zr +update                                      update plugins from already sourced zsh
     zr +help                                        show help
+    zr +version                                     show version
 
-#### install
+  #### install
 
 `zr` is published to crates.io, and can be installed with `cargo install zr`
 
@@ -105,7 +108,7 @@ function zrinit {
 
 #### publishing
 
-    git tag 1.2.1
+    git tag 2.0.0
     git push --tags
     cargo publish --locked
 

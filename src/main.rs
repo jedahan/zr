@@ -13,6 +13,7 @@ use directories::ProjectDirs;
 use std::env;
 use std::fs::OpenOptions;
 use std::io::{BufRead, BufReader};
+use std::process::ExitCode;
 
 pub mod identifier;
 pub mod plugin;
@@ -24,37 +25,50 @@ use crate::plugins::Plugins;
 const NAME: &str = env!("CARGO_PKG_NAME");
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-fn main() {
+fn main() -> ExitCode {
     if let Some(subcommand) = env::args().nth(1) {
-        if ["--update", "+update", "-u", "+u" ].contains(&subcommand.as_str()) {
+        let command = &subcommand.as_str();
+        if ["+update", "+u"].contains(command) {
             update();
-            return;
+            return ExitCode::SUCCESS;
         }
-        if ["--help", "+help", "-h", "+h" ].contains(&subcommand.as_str()) {
+        if ["+help", "+h"].contains(command) {
             help();
-            return;
+            return ExitCode::SUCCESS;
         }
-        if ["--version", "+version", "-v", "+v" ].contains(&subcommand.as_str()) {
+        if ["+version", "+v"].contains(command) {
             version();
-            return;
+            return ExitCode::SUCCESS;
         }
-        if subcommand.as_str().contains('/') {
-            let identifiers = env::args().skip(1).map(Identifier::new).collect();
-            let plugins = load(identifiers);
-            println!("{}", plugins);
-            return;
+
+        if ["+generate", "+g"].contains(command) {
+            generate(2);
+            return ExitCode::SUCCESS;
+        }
+
+        if subcommand.contains("/") {
+            generate(1);
+            return ExitCode::SUCCESS;
         }
     }
-    help()
+    help();
+    return ExitCode::from(1);
+}
+
+fn generate(skip: usize) {
+    let identifiers = env::args().skip(skip).map(Identifier::new).collect();
+    let plugins = load(identifiers);
+    println!("{}", plugins);
 }
 
 fn version() {
-    println!("{name} {version}", version=VERSION, name=NAME);
+    println!("{name} {version}", version = VERSION, name = NAME);
 }
 
 fn help() {
     version();
-    println!("by Jonathan Dahan <hi@jonathan.is>
+    println!(
+        "by Jonathan Dahan <hi@jonathan.is>
 
 Example
 
@@ -66,11 +80,16 @@ Format
 {name} author/name/file.zsh                        file.zsh from github.com/author/name
 {name} https://gitlab.com/a/plugin                    *.zsh from gitlab.com/a/plugin
 {name} https://gitlab.com/a/plugin.git/file.zsh    file.zsh from gitlab.com/a/plugin
+{name} --base https://codeberg.org author/name        *.zsh from codeberg.org/author/name
 
 Commands
 
+{name} +generate                                    print init.zsh (default command)
 {name} +update                                      update plugins from already sourced zsh
-{name} +help                                        show help", name=NAME);
+{name} +help                                        show help
+{name} +version                                     show version",
+        name = NAME
+    );
 }
 
 /// Take a list of identifiers (from cli args) and output sourceable zsh

@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{env, path::PathBuf};
 use url::{ParseError, Url};
 
 #[derive(Clone, Debug, PartialEq)]
@@ -21,10 +21,12 @@ impl Identifier {
             name.clone()
         };
 
+        let base = env::var("_ZR_DEFAULT_BASE").unwrap_or("https://github.com".to_owned());
+
         let url = match Url::parse(&uri) {
             Ok(url) => url,
             Err(ParseError::RelativeUrlWithoutBase) => {
-                Url::parse(&format!("https://github.com/{}", &uri)).unwrap()
+                Url::parse(&format!("{}/{}", &base, &uri)).unwrap()
             }
             Err(e) => panic!("{}", e),
         };
